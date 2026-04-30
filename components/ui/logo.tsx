@@ -1,60 +1,86 @@
+'use client';
+
 import React from 'react';
 
-export function Logo({ className = "text-tcg-green drop-shadow-[0_0_8px_#39FF14]" }: { className?: string }) {
+import Image from 'next/image';
+
+interface LogoProps {
+  className?: string;
+  variant?: 'green' | 'white';
+  mode?: 'icon' | 'full';
+  src?: string;
+}
+
+export function Logo({ className = "w-10 h-10", variant = 'green', mode = 'icon', src }: LogoProps) {
+  const isGreen = variant === 'green';
+  const color = isGreen ? '#39FF14' : '#FFFFFF';
+  
+  // If src is provided, render an image
+  if (src) {
+    return (
+      <div className={`relative flex items-center justify-center ${className}`}>
+        <Image 
+          src={src} 
+          alt="The Capital Guru" 
+          width={mode === 'full' ? 200 : 40} 
+          height={40} 
+          className="object-contain"
+          referrerPolicy="no-referrer"
+        />
+      </div>
+    );
+  }
+
+  // Adjusted aspect ratio for full logo vs icon
+  const boxWidth = mode === 'full' ? 300 : 32;
+  const boxHeight = 32;
+
   return (
-    <svg 
-      viewBox="0 0 100 100" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg" 
-      className={className}
-    >
-      {/* C */}
-      <path 
-        d="M 42 46 H 30 A 24 24 0 0 0 30 94 H 42" 
-        stroke="currentColor" 
-        strokeWidth="11" 
-        strokeLinecap="square" 
+    <div className={`relative flex items-center justify-center ${className} ${mode === 'full' ? 'w-auto' : ''}`}>
+      <svg 
+        viewBox={`0 0 ${boxWidth} ${boxHeight}`}
         fill="none" 
-      />
-      
-      {/* G (with the crossbar) */}
-      <path 
-        d="M 58 46 H 70 A 24 24 0 0 1 70 94 H 58 V 74 H 75" 
-        stroke="currentColor" 
-        strokeWidth="11" 
-        strokeLinecap="square" 
-        strokeLinejoin="miter" 
-        fill="none" 
-      />
-      
-      {/* The Central Cross '+' */}
-      <rect x="42" y="66" width="16" height="8" fill="currentColor" />
-      <rect x="46" y="62" width="8" height="16" fill="currentColor" />
-      
-      {/* Downward shaft extension */}
-      <rect x="46" y="82" width="8" height="16" fill="currentColor" />
-      
-      {/* Upward shaft */}
-      <rect x="46" y="32" width="8" height="26" fill="currentColor" />
-      
-      {/* Arrowhead */}
-      <polygon points="50,10 32,32 68,32" fill="currentColor" />
-      
-      {/* Candlesticks on the Left (over the C) */}
-      {/* Stick 1 (Leftmost) */}
-      <rect x="18" y="38" width="6" height="12" fill="currentColor" />
-      <rect x="20" y="33" width="2" height="22" fill="currentColor" />
-      {/* Stick 2 (Middle Left) */}
-      <rect x="30" y="30" width="6" height="16" fill="currentColor" />
-      <rect x="32" y="24" width="2" height="28" fill="currentColor" />
-      
-      {/* Candlesticks on the Right (over the G) */}
-      {/* Stick 3 (Middle Right) */}
-      <rect x="64" y="38" width="6" height="10" fill="currentColor" />
-      <rect x="66" y="34" width="2" height="18" fill="currentColor" />
-      {/* Stick 4 (Rightmost) */}
-      <rect x="76" y="26" width="6" height="20" fill="currentColor" />
-      <rect x="78" y="20" width="2" height="32" fill="currentColor" />
-    </svg>
+        xmlns="http://www.w3.org/2000/svg" 
+        className="w-full h-full"
+      >
+        {/* Icon Part */}
+        <g className="logo-icon">
+          {/* Chart Bars (Candlesticks) */}
+          <rect x="2" y="14" width="2" height="6" fill={color} opacity="0.8" />
+          <rect x="6" y="10" width="2" height="12" fill={color} opacity="0.9" />
+          <rect x="24" y="11" width="2" height="10" fill={color} opacity="0.9" />
+          <rect x="28" y="7" width="2" height="15" fill={color} opacity="0.8" />
+          
+          {/* The Styled C */}
+          <path d="M12 16H8V26H14V22H12" stroke={color} strokeWidth="2.5" strokeLinejoin="miter" />
+          
+          {/* The Styled G */}
+          <path d="M20 16H24V26H18V16H20M24 21H21" stroke={color} strokeWidth="2.5" strokeLinejoin="miter" />
+          
+          {/* Center Vertical Bar & Plus */}
+          <rect x="15" y="4" width="2" height="26" fill={color} />
+          <rect x="13" y="18" width="6" height="2" fill={color} />
+          
+          {/* Upward Arrow */}
+          <path d="M16 0L22 8H10L16 0Z" fill={color} />
+        </g>
+
+        {/* Text Part for Full Mode */}
+        {mode === 'full' && (
+          <text 
+            x="45" 
+            y="23" 
+            fill={color} 
+            fontFamily="Inter, system-ui, sans-serif" 
+            fontWeight="700" 
+            fontSize="18" 
+            letterSpacing="0.05em"
+            className="font-display font-bold uppercase"
+          >
+            THE CAPITAL GURU
+          </text>
+        )}
+      </svg>
+    </div>
   );
 }

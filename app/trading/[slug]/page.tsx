@@ -64,7 +64,7 @@ export default async function ProgrammaticSeoPage({ params }: { params: Promise<
         name: 'The Capital Guru',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://thecapitalguru.net/logo.png',
+          url: 'https://i.ibb.co/1Gbm0Csd/main-logo.jpg',
         },
       },
     },

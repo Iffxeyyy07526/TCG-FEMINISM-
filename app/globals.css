@@ -9,14 +9,18 @@
   --color-tcg-gray-border: #2A2A2A;
   --color-tcg-black: #000000;
 
-  --font-display: "Arial Narrow", "Helvetica Neue", var(--font-display), sans-serif;
-  --font-body: "Helvetica Neue", Helvetica, Arial, var(--font-body), sans-serif;
-  --font-mono: var(--font-mono), monospace;
+  --font-display: var(--font-space-grotesk), "Arial Narrow", sans-serif;
+  --font-body: var(--font-inter), "Helvetica Neue", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
 
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-xl: 32px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 @layer base {
@@ -40,25 +44,43 @@
 }
 
 @layer components {
+  /* Premium Glassmorphism */
+  .glass {
+    @apply bg-[#050505]/60 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glass-light {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(57, 255, 20, 0.4);
+  }
+
   /* Primary CTA */
   .btn-primary {
     background: linear-gradient(135deg, #39FF14, #00B80A);
     color: #000;
-    font-family: var(--font-body);
+    font-family: var(--font-display);
     font-weight: 900;
     font-size: 14px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 20px 32px;
+    padding: 16px 32px;
     border-radius: 12px;
     border: none;
-    box-shadow: 0 15px 40px rgba(57, 255, 20, 0.3);
+    box-shadow: 0 10px 40px rgba(57, 255, 20, 0.2);
     cursor: pointer;
     transition: var(--transition);
-    @apply inline-flex items-center justify-center;
+    @apply inline-flex items-center justify-center relative overflow-hidden;
+  }
+  .btn-primary::after {
+    content: "";
+    @apply absolute inset-0 bg-white/20 translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000 skew-x-12;
   }
   .btn-primary:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
+    box-shadow: 0 15px 50px rgba(57, 255, 20, 0.4);
   }
 
   /* Secondary / Ghost */
@@ -84,23 +106,10 @@
   }
 
   .card-premium {
-    background: #0F0F0F;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 32px;
-    position: relative;
-    overflow: hidden;
-    transition: var(--transition);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-  .card-premium::before {
-    display: none;
+    @apply bg-[#050505]/60 backdrop-blur-2xl border border-white/5 rounded-3xl p-8 relative overflow-hidden transition-all duration-700;
   }
   .card-premium:hover { 
-    transform: translateY(-4px); 
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
-    border-color: rgba(255,255,255,0.15);
+    @apply border-tcg-green/20 -translate-y-2 shadow-2xl shadow-tcg-green/5;
   }
 }
 

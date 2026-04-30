@@ -9,7 +9,6 @@ export function Sidebar() {
   const links = [
     { name: 'Overview', href: '/dashboard' },
     { name: 'Signals', href: '/dashboard/signals' },
-    { name: 'Portfolio', href: '/dashboard/portfolio' },
     { name: 'Community', href: '/dashboard/community' },
     { name: 'Settings', href: '/dashboard/settings' },
   ];

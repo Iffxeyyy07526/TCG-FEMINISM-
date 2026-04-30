@@ -4,10 +4,15 @@ import { LiveBadge } from '@/components/ui/live-badge';
 import { SignalCard } from '@/components/ui/signal-card';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Marquee } from '@/components/ui/marquee';
+import { FAQ } from '@/components/ui/faq';
+import { Testimonials } from '@/components/ui/testimonials';
 import Link from 'next/link';
 import Script from 'next/script';
+import * as motion from 'motion/react-client';
 
 export default function Home() {
+  const telegramLink = "https://t.me/TheCapitalGuruSupport";
+  
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -16,9 +21,9 @@ export default function Home() {
         '@id': 'https://thecapitalguru.net/#organization',
         name: 'The Capital Guru',
         url: 'https://thecapitalguru.net',
-        logo: 'https://thecapitalguru.net/logo.png',
+        logo: 'https://i.ibb.co/1Gbm0Csd/main-logo.jpg',
         sameAs: [
-          'https://t.me/TheCapitalGuruSupport',
+          telegramLink,
         ],
       },
       {
@@ -34,7 +39,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-tcg-black text-tcg-white overflow-hidden selection:bg-tcg-green/30 selection:text-tcg-green">
+    <main className="min-h-screen bg-tcg-black text-white selection:bg-tcg-green/30 selection:text-tcg-green">
       <Script
         id="structured-data"
         type="application/ld+json"
@@ -43,99 +48,127 @@ export default function Home() {
       <Navbar />
 
       {/* 1. HERO SECTION */}
-      <section className="relative pt-24 pb-16 md:pt-40 md:pb-24 overflow-hidden">
+      <section className="relative pt-32 pb-24 md:pt-56 md:pb-40 overflow-hidden">
         {/* Background FX */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-tcg-black" />
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#39FF14 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-          <div className="absolute top-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-tcg-green opacity-[0.08] blur-[120px]" />
-          <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] rounded-full bg-tcg-green opacity-[0.05] blur-[100px]" />
+          <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(#39FF14 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+          <div className="absolute top-[-200px] right-[-200px] w-[900px] h-[900px] rounded-full bg-tcg-green opacity-[0.08] blur-[180px]" />
+          <div className="absolute bottom-[-100px] left-[-100px] w-[600px] h-[600px] rounded-full bg-tcg-green opacity-[0.05] blur-[140px]" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
             
-            {/* Hero Left Content (60%) */}
-            <div className="lg:col-span-7 flex flex-col items-start">
-              <LiveBadge text="LIVE · Equity & F&O · Desk Active" className="mb-6" />
+            {/* Hero Left Content */}
+            <div className="lg:col-span-12 xl:col-span-7 flex flex-col items-center xl:items-start text-center xl:text-left">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <LiveBadge text="LIVE · INSTITUTIONAL ALPHA FLOOR · ACTIVELY TRADING" className="mb-12" />
+              </motion.div>
               
-              <h1 className="font-display text-5xl sm:text-6xl lg:text-[80px] xl:text-[90px] font-black leading-[0.95] tracking-tighter uppercase mb-6 animate-in slide-in-from-top-8 fade-in duration-1000">
-                Institutional-Grade<br/>
-                <span className="text-tcg-green">Signals</span> For Stock Market
-              </h1>
+              <motion.h1 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="font-display text-5xl sm:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.9] tracking-tighter uppercase mb-10"
+              >
+                UNLEASH <br/>
+                <span className="text-tcg-green italic underline decoration-tcg-green/10 underline-offset-[16px]">GURU ALPHA.</span><br/>
+                BE THE 1%.
+              </motion.h1>
               
-              <p className="text-lg text-white/60 max-w-lg mb-10 leading-relaxed font-medium animate-in slide-in-from-bottom-4 fade-in duration-1000 delay-200">
-                Research-backed entries, targets, and stop-losses — delivered on Telegram when the setup is live. Built for traders who want clarity, not noise.
-              </p>
-
-              {/* Stats Row */}
-              <div className="grid grid-cols-3 gap-6 sm:gap-12 mb-10 border-y border-white/10 py-6 w-full animate-in slide-in-from-bottom-4 fade-in duration-1000 delay-300">
-                <div className="flex flex-col">
-                  <div className="text-3xl font-bold text-tcg-green shadow-tcg-green/50" style={{ textShadow: '0 0 15px rgba(57,255,20,0.3)' }}>
-                    <AnimatedCounter to={78} duration={1.5} format="percent" />
-                  </div>
-                  <div className="text-[10px] text-white/40 uppercase tracking-widest font-bold mt-1">Win Rate</div>
-                </div>
-                <div className="w-[1px] h-10 bg-white/10 hidden sm:block"></div>
-                <div className="flex flex-col">
-                  <div className="text-3xl font-bold">
-                    <AnimatedCounter to={350} duration={1.5} format="plus" />
-                  </div>
-                  <div className="text-[10px] text-white/40 uppercase tracking-widest font-bold mt-1">Signals YTD</div>
-                </div>
-                <div className="w-[1px] h-10 bg-white/10 hidden sm:block"></div>
-                <div className="flex flex-col">
-                  <div className="text-3xl font-bold">
-                    <AnimatedCounter to={150} duration={1.5} format="plus" />
-                  </div>
-                  <div className="text-[10px] text-white/40 uppercase tracking-widest font-bold mt-1">Active Members</div>
-                </div>
-              </div>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="text-xl md:text-2xl text-white/40 max-w-2xl mb-14 leading-tight font-body font-bold lowercase tracking-tight"
+              >
+                quit guessing. start trailing the whales. get high-conviction, research-backed signals for indian stock market delivered straight to your telegram edge.
+              </motion.p>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-8 w-full sm:w-auto animate-in slide-in-from-bottom-6 fade-in duration-1000 delay-500">
-                <Link href="/register" className="btn-primary w-full sm:w-auto">
-                  Get Instant Access &rarr;
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="flex flex-col sm:flex-row items-center gap-6 mb-20 w-full sm:w-auto"
+              >
+                <Link 
+                  href="/register" 
+                  className="btn-primary px-12 py-5 text-base w-full sm:w-auto"
+                >
+                  SECURE ACCESS NOW
                 </Link>
-                <Link href="/pricing" className="btn-ghost w-full sm:w-auto">
-                  Compare Plans
+                <Link href="/pricing" className="glass-light px-10 py-5 text-white font-display font-black text-sm uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all flex items-center justify-center w-full sm:w-auto group">
+                  EXPLORE PLANS <span className="ml-2 group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </Link>
-              </div>
+                
+                <a 
+                  href={telegramLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[9px] items-center gap-2 font-black uppercase tracking-[0.3em] text-white/30 hover:text-tcg-green transition-colors hidden xl:flex group"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-tcg-green animate-pulse shadow-[0_0_8px_#39FF14]"></span>
+                  Direct Support Terminal
+                </a>
+              </motion.div>
 
-              {/* Trust Row */}
-              <div className="flex flex-wrap items-center gap-4 text-[11px] font-body text-white/40 uppercase tracking-widest font-semibold animate-in fade-in duration-1000 delay-700">
-                <span><span className="mr-1">🔒</span> 256-bit SSL</span>
-                <span className="hidden sm:inline">•</span>
-                <span><span className="mr-1">✓</span> 150+ Members</span>
-                <span className="hidden sm:inline">•</span>
-                <span className="text-tcg-green"><span className="mr-1">⚡</span> Real-Time Signals</span>
-              </div>
+              {/* Stats Row */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 0.8 }}
+                className="flex flex-wrap gap-12 items-center opacity-70"
+              >
+                <div className="flex flex-col">
+                  <span className="text-3xl font-black font-display tracking-tight text-white mb-1 whitespace-nowrap">
+                    <AnimatedCounter to={87.3} format="percent" />
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest font-black font-body text-white/40">Accuracy Rate</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-3xl font-black font-display tracking-tight text-white mb-1">1:3.4</span>
+                  <span className="text-[10px] uppercase tracking-widest font-black font-body text-white/40">Avg RR Ratio</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-3xl font-black font-display tracking-tight text-white mb-1 whitespace-nowrap">
+                    <AnimatedCounter to={2400} format="plus" />
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest font-black font-body text-white/40">Elite Traders</span>
+                </div>
+              </motion.div>
             </div>
 
-            {/* Hero Right Visual (40%) */}
-            <div className="lg:col-span-5 relative h-[500px] w-full hidden md:flex items-center justify-center select-none animate-in fade-in zoom-in-95 duration-1000 delay-500">
-              <div className="absolute inset-0 bg-tcg-green/5 blur-[80px] rounded-full" />
-              
-              {/* Background Card 2 */}
-              <div className="absolute w-full max-w-xs bg-[#0F0F0F] border border-white/5 rounded-2xl p-6 shadow-2xl z-0 transform -translate-x-8 translate-y-12 opacity-30 blur-[2px]" />
-              
-              {/* Background Card 1 */}
-              <div className="absolute w-full max-w-xs bg-[#0F0F0F] border border-white/5 rounded-2xl p-6 shadow-2xl z-0 transform translate-x-12 -translate-y-8 opacity-40 blur-[1px]" />
-
-              {/* Main Card (Floating) */}
-              <div className="absolute animate-[floatBackground_6s_ease-in-out_infinite] z-10 w-full max-w-sm drop-shadow-2xl">
+            {/* Hero Right Visual */}
+            <motion.div 
+              initial={{ opacity: 0, x: 40, rotate: 12 }}
+              animate={{ opacity: 1, x: 0, rotate: 6 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="lg:col-span-5 relative hidden lg:flex items-center justify-center"
+            >
+              <div className="absolute inset-0 bg-tcg-green/5 blur-[120px] rounded-full scale-150" />
+              <div className="relative z-10 w-full max-w-sm hover:rotate-0 transition-transform duration-700 cursor-pointer">
                 <SignalCard 
-                  data={{ type: 'BUY', ticker: 'RELIANCE', price: '2450.00', target: '2520.00', sl: '2410.00', gain: '+2.86% \u2191' }} 
+                  className="shadow-2xl shadow-tcg-green/5"
+                  data={{ 
+                    type: 'BUY', 
+                    ticker: 'NIFTY 24500 CE', 
+                    price: '145.00', 
+                    target: '210.00', 
+                    sl: '115.00', 
+                    rrRatio: '1:3.2',
+                    status: 'ACTIVE'
+                  }} 
                 />
               </div>
-            </div>
+            </motion.div>
 
           </div>
-        </div>
-
-        {/* Disclaimer Bottom */}
-        <div className="absolute bottom-4 right-10 z-20 opacity-40 hidden md:block">
-           <p className="text-[9px] text-right max-w-xs font-medium">TCG is not SEBI-registered. All signals are for educational purposes only. Trade at your own risk.</p>
         </div>
       </section>
 
@@ -143,150 +176,140 @@ export default function Home() {
       <Marquee text="" />
 
       {/* 3. FEATURES SECTION */}
-      <section id="features" className="py-16 md:py-24 relative">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="mb-16">
-            <h2 className="font-display text-5xl md:text-[64px] text-white">Why Traders Choose Us</h2>
-            <div className="w-20 h-1 bg-tcg-green mt-6 shadow-[0_0_10px_#39FF14]"></div>
-          </div>
+      <section id="features" className="py-32 relative">
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-24 text-center"
+          >
+            <h2 className="font-display text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">The Institutional Edge</h2>
+            <div className="h-1 w-20 bg-tcg-green mx-auto mb-6"></div>
+            <p className="text-white/40 max-w-2xl mx-auto text-lg leading-relaxed font-body font-medium">Professional-grade research tools and signal delivery systems designed for high-performance execution.</p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: '📡', title: 'Real-Time Signals', desc: 'Stock Market equities & derivatives with precise entry, target, and stop-loss levels.' },
-              { icon: '⚡', title: 'Instant Telegram', desc: 'Get signals directly to your Telegram before the market moves.' },
-              { icon: '📈', title: 'Intraday & Positional', desc: 'Curated calls for all trading styles, from day trades to swing setups.' },
-              { icon: '🛡', title: 'Risk Management', desc: 'Every call comes with a strictly calculated risk-reward ratio.' },
-              { icon: '📊', title: 'Option Chain Analytics', desc: 'Advanced derivatives signals based on institutional flow.' },
-              { icon: '🤝', title: 'Elite Community', desc: 'Learn and trade alongside a tight-knit group of professional traders.' }
+              { icon: '📡', title: 'Institutional Flow', desc: 'Signals based on big-money movements and institutional order blocks.' },
+              { icon: '⚡', title: 'Instant Execution', desc: 'Real-time Telegram alerts ensuring you enter before the volatility spikes.' },
+              { icon: '📈', title: 'Full Asset Range', desc: 'Comprehensive setups for Nifty, Bank Nifty, and major blue-chip equities.' },
+              { icon: '🛡', title: 'Risk Guard', desc: 'Pre-calculated stop-losses and position sizing for every single alert.' },
+              { icon: '📊', title: 'Alpha Analytics', desc: 'Entries derived from complex option chain and volumetric analysis.' },
+              { icon: '🤝', title: 'Direct Access', desc: 'Direct communication for doubt clearing and active trade management.' }
             ].map((feat, i) => (
-              <div key={i} className="card-premium group">
-                <div className="w-10 h-10 rounded-full bg-tcg-green/10 flex items-center justify-center text-xl mb-6 group-hover:scale-110 transition-transform">
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="card-premium group"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-tcg-green/5 flex items-center justify-center text-3xl mb-8 border border-tcg-green/10 group-hover:scale-110 group-hover:bg-tcg-green/10 transition-all duration-500">
                   {feat.icon}
                 </div>
-                <h3 className="font-body font-semibold text-lg text-white mb-2">{feat.title}</h3>
-                <p className="font-body text-sm text-white/60 leading-relaxed">
+                <h3 className="font-display font-black text-xl text-white mb-4 uppercase tracking-tight group-hover:text-tcg-green transition-colors">{feat.title}</h3>
+                <p className="font-body text-white/30 leading-relaxed text-sm font-medium">
                   {feat.desc}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 4. HOW IT WORKS */}
-      <section className="py-16 md:py-24 relative border-y border-white/5 bg-tcg-black">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="mb-16 text-center">
-            <h2 className="font-display text-5xl md:text-[64px] text-white mb-4">How It Works</h2>
-            <p className="font-body text-lg text-white/60 max-w-xl mx-auto">Three steps from signup to live signals — built for speed and clarity.</p>
-          </div>
-
-          <div className="flex flex-col md:flex-row justify-between relative max-w-5xl mx-auto">
-            {/* Connecting Line (Desktop) */}
-            <div className="hidden md:block absolute top-[60px] left-[15%] right-[15%] h-[1px] bg-tcg-green/20 z-0">
-               <div className="h-full bg-tcg-green w-1/3 shadow-[0_0_10px_#39FF14]"></div>
-            </div>
-
-            {[
-              { num: '01', title: 'Create Your Account', desc: 'Sign up in under a minute and verify your email — no paperwork.' },
-              { num: '02', title: 'Choose Plan & Pay', desc: 'Pick Starter, Pro, or Elite. Pay securely via Razorpay with GST invoice.' },
-              { num: '03', title: 'Get Telegram Access', desc: 'Receive your private invite and start getting structured signals instantly.' }
-            ].map((step, i) => (
-              <div key={i} className="relative z-10 flex flex-col items-center text-center p-6 md:w-1/3 mb-8 md:mb-0">
-                 {/* Circle Node */}
-                 <div className="w-[120px] h-[120px] rounded-full bg-[#0F0F0F] border border-white/10 backdrop-blur-xl flex items-center justify-center mb-6 relative group overflow-hidden shadow-2xl">
-                    <div className="absolute inset-0 bg-tcg-green/5 group-hover:bg-tcg-green/10 transition-colors"></div>
-                    <span className="font-display text-[80px] text-white/10 group-hover:text-tcg-green/30 transition-colors select-none leading-none mt-2">{step.num}</span>
-                    <div className="absolute top-4 left-4 w-2 h-2 bg-tcg-green rounded-full shadow-[0_0_10px_#39FF14]"></div>
-                 </div>
-                 <h3 className="font-body font-bold text-lg text-white mb-3 tracking-wide">{step.title}</h3>
-                 <p className="font-body text-sm text-white/50">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-16 text-center">
-            <Link href="/register" className="btn-primary">Start Step 01</Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. LIVE SIGNAL PREVIEW */}
-      <section className="py-16 md:py-24 relative overflow-hidden">
-        {/* Glow behind */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-tcg-green/5 blur-[120px] pointer-events-none"></div>
-
-        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-16">
-          <div className="lg:w-1/2">
-            <h2 className="font-display text-5xl md:text-[64px] text-white mb-6">Real Signals.<br/>Real Results.</h2>
-            <p className="font-body text-lg text-white/70 mb-8 leading-relaxed">
-              We cut the noise. Our telegram feed delivers exactly what you need to execute: direction, entry price, targets, and strict stop-loss. Check our verified hits.
+      {/* 4. PERFORMANCE PREVIEW */}
+      <section className="py-32 relative overflow-hidden bg-tcg-black/50 border-y border-white/5">
+        <div className="max-w-6xl mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-24">
+          <motion.div 
+            className="lg:w-1/2"
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="font-display text-5xl md:text-6xl font-black text-white mb-8 leading-[0.9] uppercase tracking-tighter">Precision <br/><span className="text-tcg-green">Execution.</span></h2>
+            <p className="font-body text-lg text-white/50 mb-10 leading-relaxed font-medium">
+              We don&apos;t just post signals; we build trade plans. Our methodology focuses on high-probability zones where the risk-to-reward ratio is skewed in your favor.
             </p>
             
-            <div className="bg-tcg-green/10 border border-tcg-green/30 p-6 rounded-xl max-w-sm">
-                <div className="font-display text-4xl text-tcg-green mb-1">87.3%</div>
-                <div className="font-body text-xs text-white/80 uppercase tracking-widest mb-3">of signals hit target.</div>
-                <div className="w-full h-1.5 bg-tcg-black rounded-full overflow-hidden">
-                   <div className="h-full bg-tcg-green shadow-[0_0_8px_#39FF14] w-[87.3%]"></div>
-                </div>
+            <div className="flex gap-12">
+              <div className="flex flex-col">
+                <span className="text-4xl font-display font-black text-tcg-green tracking-tighter">
+                  <AnimatedCounter to={87} format="percent" />
+                </span>
+                <span className="text-[10px] uppercase tracking-widest text-white/40 font-black">Historical Accuracy</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-4xl font-display font-black text-white tracking-tighter">1:3.4</span>
+                <span className="text-[10px] uppercase tracking-widest text-white/40 font-black">Average Reward</span>
+              </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="lg:w-1/2 w-full">
-            {/* Telegram simulated feed */}
-            <div className="bg-[#0e1621] rounded-2xl border border-white/5 p-4 sm:p-6 shadow-2xl relative max-w-md mx-auto transform rotate-1 hover:rotate-0 transition-transform duration-500">
-               {/* Telegram header mock */}
-               <div className="flex items-center gap-3 border-b border-white/10 pb-4 mb-6">
-                 <div className="w-10 h-10 rounded-full bg-tcg-green flex items-center justify-center text-black font-display text-lg shadow-[0_0_10px_#39FF14]">CG</div>
-                 <div>
-                   <div className="font-body font-semibold text-white">The Capital Guru Live</div>
-                   <div className="font-body text-xs text-tcg-green font-mono">2,412 subscribers</div>
+          <motion.div 
+            className="lg:w-1/2 w-full"
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="bg-[#050505] rounded-[2.5rem] border border-white/10 p-10 shadow-2xl relative max-w-md mx-auto group">
+               <div className="absolute -inset-1 bg-gradient-to-r from-tcg-green/20 to-tcg-metal/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+               <div className="relative">
+                 <div className="flex items-center gap-4 border-b border-white/10 pb-8 mb-10">
+                   <div className="w-14 h-14 rounded-2xl bg-tcg-green flex items-center justify-center text-black font-display font-black text-xl shadow-[0_0_20px_rgba(57,255,20,0.4)]">TG</div>
+                   <div>
+                     <div className="font-display font-black text-white text-xl uppercase tracking-tight">The Capital Guru</div>
+                     <div className="font-body text-[10px] text-tcg-green font-black tracking-[0.2em] uppercase">2,412 ACTIVE SUBSCRIBERS</div>
+                   </div>
+                 </div>
+
+                 <div className="space-y-6">
+                    <SignalCard 
+                      className="border-white/5"
+                      data={{ type: 'BUY', ticker: 'RELIANCE', price: '2450.00', target: '2520.00', sl: '2410.00', rrRatio: '1:3.5', gain: 'HIT \u2705' }} 
+                    />
+                    <SignalCard 
+                      className="border-white/5"
+                      data={{ type: 'SELL', ticker: 'HDFCBANK', price: '1680', target: '1630', sl: '1700', rrRatio: '1:2.8', gain: 'HIT \u2705' }} 
+                    />
                  </div>
                </div>
-
-               {/* Signals */}
-               <div className="space-y-4">
-                  <SignalCard 
-                    data={{ type: 'BUY', ticker: 'RELIANCE', price: '2450.00', target: '2520.00', sl: '2410.00', gain: '+2.86% \u2191' }} 
-                  />
-                  <SignalCard 
-                    data={{ type: 'SELL', ticker: 'HDFCBANK', price: '1680', target: '1630', sl: '1700', gain: 'Hit +2.97% \u2705' }} 
-                  />
-                  <SignalCard 
-                    data={{ type: 'BUY', ticker: 'TATAMOTORS', price: '890', target: '920', sl: '875', gain: 'Hit +3.4% \u2705' }} 
-                  />
-               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* 6. TESTIMONIALS */}
-      <section className="py-16 md:py-24 bg-tcg-black relative border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="font-display text-5xl md:text-[64px] text-white mb-16 text-center">What Our Members Say</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { name: 'Rahul S.', city: 'Mumbai', initial: 'R', quote: "Joined the Pro plan 4 months ago. The intraday calls are incredibly accurate. Made back my subscription fee in the first week!" },
-              { name: 'Priya M.', city: 'Bangalore', initial: 'P', quote: "Finally a signal service that actually works. The Telegram group is super active and the team responds quickly to queries." },
-              { name: 'Vikram T.', city: 'Delhi', initial: 'V', quote: "The option chain signals alone are worth the Elite subscription. Up 34% in 3 months strictly following their structured calls." }
-            ].map((t, i) => (
-              <div key={i} className="card-premium">
-                 <div className="flex text-amber-400 mb-4 text-sm gap-1">
-                    {'★★★★★'.split('').map((star, i) => <span key={i}>{star}</span>)}
-                 </div>
-                 <p className="font-body italic text-[15px] text-white/80 mb-8 leading-relaxed">&quot;{t.quote}&quot;</p>
-                 <div className="flex items-center gap-4 mt-auto">
-                   <div className="w-10 h-10 rounded-full bg-tcg-green/20 text-tcg-green border border-tcg-green/20 flex items-center justify-center font-display text-xl">{t.initial}</div>
-                   <div>
-                     <div className="font-body font-semibold text-white text-sm">{t.name}</div>
-                     <div className="font-body text-xs text-white/50 uppercase tracking-wider">{t.city}</div>
-                   </div>
-                 </div>
-              </div>
-            ))}
-          </div>
+      {/* 5. TESTIMONIALS & FAQ */}
+      <Testimonials />
+      <FAQ />
+
+      {/* 6. FINAL CTA */}
+      <section className="py-40 relative overflow-hidden bg-tcg-black">
+        <div className="absolute inset-0 bg-tcg-green/5 blur-[140px] rounded-full translate-y-1/2 opacity-50"></div>
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="font-display text-5xl md:text-7xl font-black mb-8 uppercase tracking-tighter leading-[0.9]">Elevate Your <br/>Trading Game.</h2>
+            <p className="text-white/50 text-xl mb-12 max-w-2xl mx-auto font-body font-medium">Join the elite rank of traders receiving our institutional setups daily.</p>
+            <div className="flex flex-col items-center gap-6">
+              <Link href="/register" className="btn-primary px-16 py-6 text-lg group">
+                REGISTER NOW <span className="group-hover:translate-x-2 transition-transform duration-300 ml-2">&rarr;</span>
+              </Link>
+              <a 
+                href={telegramLink} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs font-black uppercase tracking-[0.2em] text-white/30 hover:text-tcg-green transition-colors"
+              >
+                Need Help? Contact Support
+              </a>
+            </div>
+          </motion.div>
         </div>
       </section>
 

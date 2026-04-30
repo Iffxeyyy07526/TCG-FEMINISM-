@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { globalStore } from '@/lib/store';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   if (supabase) {
     try {

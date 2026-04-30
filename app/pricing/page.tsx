@@ -1,104 +1,159 @@
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import Link from 'next/link';
-import { Check, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Check, X, Star, ShieldCheck } from 'lucide-react';
+import * as motion from 'motion/react-client';
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen bg-tcg-black text-tcg-white">
+    <main className="min-h-screen bg-black">
       <Navbar />
 
-      <section className="pt-28 pb-16 md:pt-40 md:pb-24 relative overflow-hidden">
-        {/* Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-tcg-green/10 blur-[150px] pointer-events-none"></div>
+      <section className="pt-40 pb-32 relative overflow-hidden">
+        {/* Glow Effects */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-tcg-green/5 blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-tcg-green/[0.03] blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          <h1 className="font-display text-6xl md:text-[80px] leading-[0.9] text-white uppercase mb-4">
-            Choose Your Edge
-          </h1>
-          <p className="font-body text-lg text-white/60 max-w-2xl mx-auto mb-16">
-            Transparent pricing. Instant access. Step up to institutional-grade signals today.
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-24"
+          >
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-tcg-green bg-tcg-green/5 px-4 py-2 rounded-full border border-tcg-green/10 mb-8 inline-flex">
+              PROFESSIONAL TIER ACCESS
+            </span>
+            <h1 className="font-display text-6xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.85] mb-8">
+              Unlock Your <br/>
+              <span className="text-tcg-green text-glow">Trading Edge.</span>
+            </h1>
+            <p className="font-body text-xl text-white/40 max-w-2xl mx-auto font-medium lowercase tracking-tight">
+              precision-engineered intelligence for serious market players. choose your growth weapon.
+            </p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end">
             {/* Starter */}
-            <div className="card-premium p-8 flex flex-col text-left relative">
-              <h3 className="font-display text-3xl mb-2">Starter</h3>
-              <div className="mb-6">
-                <span className="font-display text-5xl text-tcg-green">₹2,499</span>
-                <span className="font-body text-white/50 text-sm"> / mo</span>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="card-premium p-10 flex flex-col text-left group"
+            >
+              <div className="mb-10">
+                <h3 className="font-display text-3xl font-black text-white uppercase mb-1 tracking-tight">Starter</h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Entry Level Intel</p>
               </div>
-              <div className="font-mono text-xs text-tcg-green mb-8">₹83.3 / day</div>
+              
+              <div className="mb-10">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-display text-6xl font-black text-white tracking-tighter">₹2,499</span>
+                  <span className="font-body text-white/30 text-sm font-bold uppercase tracking-widest">/ Month</span>
+                </div>
+                <div className="font-mono text-[10px] text-tcg-green mt-2 font-black uppercase tracking-widest bg-tcg-green/5 py-1 px-3 rounded-full border border-tcg-green/10 w-fit">
+                  ₹83 Execution Cost / Day
+                </div>
+              </div>
 
-              <ul className="space-y-4 font-body text-sm text-white/80 flex-1 mb-8">
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Real-time signals</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Intraday calls</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Entry, target & SL</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Telegram access</li>
-                <li className="flex items-start gap-3"><span className="w-1.5 h-1.5 rounded-full bg-tcg-green shrink-0 mt-1.5 ml-1"></span> Basic market commentary</li>
-                <li className="flex items-start gap-3 opacity-30"><X size={18} className="text-white shrink-0 mt-0.5" /> Positional swing calls</li>
-                <li className="flex items-start gap-3 opacity-30"><X size={18} className="text-white shrink-0 mt-0.5" /> Option chain signals</li>
+              <ul className="space-y-5 font-body text-sm text-white/60 flex-1 mb-12">
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> <span>Real-time NSE signals</span></li>
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> <span>Intraday Cash & F&O</span></li>
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> <span>Exact Entry, Targets & SL</span></li>
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors opacity-30"><X size={18} className="text-white shrink-0 mt-0.5" /> <span>Positional Swing Alpha</span></li>
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors opacity-30"><X size={18} className="text-white shrink-0 mt-0.5" /> <span>Private Discord Access</span></li>
               </ul>
               
-              <Link href="/register?plan=starter" className="btn-ghost w-full">Select Starter</Link>
-            </div>
+              <Link href="/register?plan=starter" className="glass-light w-full py-5 text-xs font-black uppercase tracking-widest rounded-xl hover:border-tcg-green/30 hover:text-tcg-green transition-all text-center">
+                Select Strategy
+              </Link>
+            </motion.div>
 
-            {/* Pro */}
-            <div className="card-premium border-2 border-tcg-green relative p-8 flex flex-col text-left transform md:-translate-y-4 shadow-[0_0_40px_rgba(57,255,20,0.15)]">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-tcg-green text-black font-body font-bold text-[10px] tracking-widest uppercase px-4 py-1 rounded-full">
-                Most Popular
+            {/* Pro - MOST POPULAR */}
+            <motion.div 
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="card-premium border-2 border-tcg-green/40 p-12 flex flex-col text-left lg:scale-110 z-20 shadow-[0_0_80px_rgba(57,255,20,0.08)] bg-[#0A0A0A]"
+            >
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-tcg-green text-black font-display font-black text-[10px] tracking-[0.2em] uppercase px-8 py-3 rounded-full shadow-[0_0_30px_#39FF14] animate-pulse">
+                Institutional Choice
               </div>
-              <h3 className="font-display text-3xl mb-2 flex items-center gap-2">Pro <span className="text-amber-400 text-xl">⭐</span></h3>
-              <div className="mb-6">
-                <span className="font-display text-5xl text-tcg-green">₹11,999</span>
-                <span className="font-body text-white/50 text-sm"> / 6mo</span>
+              
+              <div className="mb-12">
+                <h3 className="font-display text-5xl font-black text-white uppercase mb-2 tracking-tighter flex items-center gap-3">Pro <Star size={24} className="fill-tcg-green text-tcg-green" /></h3>
+                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-tcg-green">Our Most Optimized Plan</p>
               </div>
-              <div className="font-mono text-xs text-tcg-green mb-8">₹66.66 / day</div>
 
-              <ul className="space-y-4 font-body text-sm text-white/80 flex-1 mb-8">
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Real-time signals</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Intraday calls</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Entry, target & SL</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Telegram access</li>
-                <li className="flex items-start gap-3"><span className="w-1.5 h-1.5 rounded-full bg-tcg-green shrink-0 mt-1.5 ml-1"></span> Weekly Outlook</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Positional swing calls</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Option chain signals</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Risk-reward analysis</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Priority support</li>
+              <div className="mb-12">
+                <div className="flex items-baseline gap-3">
+                  <span className="font-display text-8xl font-black text-white tracking-tighter">₹11,999</span>
+                  <span className="font-body text-white/30 text-base font-bold uppercase tracking-widest">/ 6mo</span>
+                </div>
+                <div className="font-mono text-xs text-tcg-green mt-4 font-black uppercase tracking-widest bg-tcg-green/10 inline-block px-4 py-1.5 rounded-full border border-tcg-green/20">
+                  SAVE 25% VS STARTER
+                </div>
+              </div>
+
+              <ul className="space-y-4 font-body text-sm text-white/80 flex-1 mb-14">
+                <li className="flex items-start gap-4 p-4 bg-white/[0.04] rounded-2xl hover:bg-tcg-green/[0.03] transition-colors"><Check size={20} className="text-tcg-green shrink-0 mt-0.5" /> <span>All Alpha Signal Access</span></li>
+                <li className="flex items-start gap-4 p-4 bg-white/[0.04] rounded-2xl hover:bg-tcg-green/[0.03] transition-colors"><Check size={20} className="text-tcg-green shrink-0 mt-0.5" /> <span>Weekly Market Flow Map</span></li>
+                <li className="flex items-start gap-4 p-4 bg-white/[0.04] rounded-2xl hover:bg-tcg-green/[0.03] transition-colors"><Check size={20} className="text-tcg-green shrink-0 mt-0.5" /> <span>High-Conviction Swing Calls</span></li>
+                <li className="flex items-start gap-4 p-4 bg-white/[0.04] rounded-2xl hover:bg-tcg-green/[0.03] transition-colors"><Check size={20} className="text-tcg-green shrink-0 mt-0.5" /> <span>Priority Support Terminal</span></li>
+                <li className="flex items-start gap-4 p-4 bg-white/[0.04] rounded-2xl hover:bg-tcg-green/[0.03] transition-colors"><Check size={20} className="text-tcg-green shrink-0 mt-0.5" /> <span>Historical Data Index</span></li>
               </ul>
               
-              <Link href="/register?plan=pro" className="btn-primary w-full">Get Instant Access &rarr;</Link>
-            </div>
+              <Link href="/register?plan=pro" className="btn-primary w-full py-6 text-base font-black relative overflow-hidden group">
+                <span className="relative z-10 transition-transform group-hover:scale-105 inline-block">ACTIVATE PRO ACCESS &rarr;</span>
+              </Link>
+            </motion.div>
 
             {/* Elite */}
-            <div className="card-premium p-8 flex flex-col text-left relative">
-              <h3 className="font-display text-3xl mb-2">Elite</h3>
-              <div className="mb-6">
-                <span className="font-display text-5xl text-tcg-green">₹19,999</span>
-                <span className="font-body text-white/50 text-sm"> / 12mo</span>
+            <motion.div 
+               initial={{ opacity: 0, x: 20 }}
+               animate={{ opacity: 1, x: 0 }}
+               transition={{ delay: 0.2 }}
+               className="card-premium p-10 flex flex-col text-left group"
+            >
+              <div className="mb-10">
+                <h3 className="font-display text-3xl font-black text-white uppercase mb-1 tracking-tight">Elite</h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/30">The Full Portfolio Engine</p>
               </div>
-              <div className="font-mono text-xs text-tcg-green mb-8">₹55.55 / day</div>
 
-              <ul className="space-y-4 font-body text-sm text-white/80 flex-1 mb-8">
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Everything in Pro</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Daily market commentary</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> 1-on-1 mentorship session</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Portfolio review</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Advanced options strategies</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Early access signals</li>
-                <li className="flex items-start gap-3"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> Elite private community</li>
+              <div className="mb-10">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-display text-6xl font-black text-white tracking-tighter">₹19,999</span>
+                  <span className="font-body text-white/30 text-sm font-bold uppercase tracking-widest">/ Year</span>
+                </div>
+                <div className="font-mono text-[10px] text-tcg-green mt-2 font-black uppercase tracking-widest bg-tcg-green/5 py-1 px-3 rounded-full border border-tcg-green/10 w-fit">
+                  Only ₹55 / day Cost
+                </div>
+              </div>
+
+              <ul className="space-y-5 font-body text-sm text-white/60 flex-1 mb-12">
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> <span>Everything in Pro Plan</span></li>
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> <span>1-on-1 Portfolio Sync</span></li>
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> <span>Advanced Option Strats</span></li>
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> <span>Early Access Discovery</span></li>
+                <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> <span>Full Mentorship Hub</span></li>
               </ul>
               
-              <Link href="/register?plan=elite" className="btn-ghost w-full">Select Elite</Link>
-            </div>
+              <Link href="/register?plan=elite" className="glass-light w-full py-5 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all text-center">
+                Select Elite
+              </Link>
+            </motion.div>
           </div>
           
-          <div className="mt-16 bg-[#1A1A1A] p-6 rounded-xl border border-white/5 max-w-3xl mx-auto flex items-center justify-center gap-3">
-             <span className="text-2xl">🛡️</span>
-             <p className="font-body text-sm text-white/80 text-left">
-               <strong className="text-white block mb-1">The Capital Guru Guarantee</strong>
-               24/7 priority support and instant Telegram access right after secure payment. Cancel automatic renewals anytime.
-             </p>
+          <div className="mt-32 glass max-w-4xl mx-auto p-12 rounded-[3rem] border border-white/5 flex flex-col md:flex-row items-center gap-10">
+             <div className="w-24 h-24 rounded-[2rem] bg-tcg-green/10 flex items-center justify-center text-tcg-green shrink-0 shadow-[0_0_40px_rgba(57,255,20,0.1)]">
+               <ShieldCheck size={48} />
+             </div>
+             <div className="text-left">
+               <h4 className="font-display text-2xl font-black text-white uppercase tracking-tight mb-3 font-mono">Institutional Shield</h4>
+               <p className="font-body text-base text-white/40 font-medium leading-relaxed">
+                 Every transaction is protected by standard 256-bit SSL encryption. Once activated, your access to the signals and Telegram community is instant and secure. We value your intellectual privacy above all.
+               </p>
+             </div>
           </div>
         </div>
       </section>

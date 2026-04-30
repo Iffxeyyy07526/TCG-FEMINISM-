@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { seoPagesData } from '@/lib/seo-data';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
+import { LiveBadge } from '@/components/ui/live-badge';
+import * as motion from 'motion/react-client';
 
 export const metadata = {
   title: 'Trading Hub | Institutional Grade Intelligence',
@@ -31,11 +33,18 @@ export default function TradingHubIndex() {
         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-tcg-green/5 blur-[150px] rounded-full hidden md:block"></div>
       </div>
       
-      <div className="pt-32 pb-16 md:pt-40 md:pb-24 px-6 max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <h1 className="font-display text-5xl md:text-7xl uppercase text-tcg-green mb-6 leading-none">Trading Hub</h1>
-            <p className="font-body text-white/70 max-w-2xl mx-auto">Navigate our comprehensive database of highly optimized trading intelligence, reviews, and market strategies.</p>
-          </div>
+      <div className="pt-32 pb-16 md:pt-48 md:pb-32 px-6 max-w-6xl mx-auto relative z-10">
+          <motion.div 
+            className="text-center mb-24"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <LiveBadge text="MARKET INTEL INDEX" className="mx-auto mb-8" />
+            <h1 className="font-display text-6xl md:text-8xl font-black uppercase text-white mb-8 tracking-tighter leading-none">
+              Trading <span className="text-tcg-green">Hub.</span>
+            </h1>
+            <p className="font-body text-xl text-white/50 max-w-2xl mx-auto font-medium">Navigating the complexities of the market with precision-engineered research hubs.</p>
+          </motion.div>
 
           <div className="space-y-16">
             {categories.map((category) => (

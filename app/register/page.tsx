@@ -1,32 +1,117 @@
+'use client';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import Link from 'next/link';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    termsAccepted: false
+  });
+  const router = useRouter();
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.termsAccepted) {
+      setError('Please accept the terms and conditions.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // 1. Sign up user via Supabase Auth
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+          }
+        }
+      });
+
+      if (signUpError) throw signUpError;
+      if (!data.user) throw new Error('No user returned from signup');
+
+      // 2. Create profile entry (Profile is typically created via Trigger in Supabase, but let's do it manually if trigger isn't set)
+      // Note: In production Supabase, you'd use a Trigger. Here we'll upsert to be safe.
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: data.user.id,
+          email: formData.email,
+          full_name: formData.fullName,
+          status: 'pending',
+          role: 'user'
+        });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        // We continue anyway since auth succeeded, but log it
+      }
+
+      // Success! Redirect to dashboard
+      localStorage.setItem('tcg_user_status', 'pending');
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during registration.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-tcg-black text-tcg-white">
+    <main className="min-h-screen bg-black text-tcg-white">
       <Navbar />
       
-      <section className="pt-40 pb-24 relative overflow-hidden flex justify-center items-center">
+      <section className="pt-40 pb-32 relative overflow-hidden flex justify-center items-center">
         {/* Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-tcg-green/10 blur-[150px] pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[800px] bg-tcg-green/5 blur-[150px] pointer-events-none"></div>
 
         <div className="max-w-md w-full px-6 relative z-10">
-          <div className="card-premium p-8 relative">
+          <div className="bg-[#050505] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl relative">
             {/* Header */}
-            <div className="text-center mb-10">
-              <div className="w-12 h-12 rounded bg-tcg-green flex items-center justify-center text-black font-display font-bold text-3xl mx-auto mb-4 shadow-[0_0_20px_rgba(57,255,20,0.5)]">CG</div>
-              <h1 className="font-display text-4xl uppercase mb-2">Create Account</h1>
-              <p className="font-body text-sm text-white/50">Join 150+ members scaling their portfolio</p>
+            <div className="text-center mb-12">
+              <Link href="/" className="inline-block hover:scale-105 transition-transform duration-300 mb-6">
+                <Image 
+                  src="https://i.ibb.co/4RP5ZkQ6/72171-removebg-preview.png" 
+                  alt="The Capital Guru" 
+                  width={140} 
+                  height={140} 
+                  className="object-contain filter drop-shadow-[0_0_10px_rgba(57,255,20,0.2)]"
+                  referrerPolicy="no-referrer"
+                />
+              </Link>
+              <h1 className="font-display text-4xl font-black uppercase mb-2 tracking-tighter">Registration</h1>
+              <p className="font-body text-[10px] text-white/30 uppercase tracking-[0.2em] font-black">Join the elite signal floor</p>
             </div>
 
             {/* Form */}
-            <form className="space-y-5">
+            <form className="space-y-5" onSubmit={handleRegister}>
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-xs p-4 rounded-xl font-medium">
+                  {error}
+                </div>
+              )}
+
               <div>
                 <label className="font-body font-semibold text-white/70 text-sm block mb-1.5 uppercase tracking-widest text-[11px]">Full Name</label>
                 <input 
                   type="text" 
+                  required
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                   className="w-full bg-[#0F0F0F] border border-white/10 rounded-xl px-4 py-3 font-body text-white text-sm focus:border-tcg-green focus:outline-none transition-colors"
                   placeholder="Rahul Singh"
                 />
@@ -35,6 +120,9 @@ export default function RegisterPage() {
                 <label className="font-body font-semibold text-white/70 text-sm block mb-1.5 uppercase tracking-widest text-[11px]">Email Address</label>
                 <input 
                   type="email" 
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
                   className="w-full bg-[#0F0F0F] border border-white/10 rounded-xl px-4 py-3 font-body text-white text-sm focus:border-tcg-green focus:outline-none transition-colors"
                   placeholder="rahul@example.com"
                 />
@@ -43,15 +131,35 @@ export default function RegisterPage() {
                 <label className="font-body font-semibold text-white/70 text-sm block mb-1.5 uppercase tracking-widest text-[11px]">Password</label>
                 <input 
                   type="password" 
+                  required
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="w-full bg-[#0F0F0F] border border-white/10 rounded-xl px-4 py-3 font-body text-white text-sm focus:border-tcg-green focus:outline-none transition-colors"
                   placeholder="••••••••"
                 />
               </div>
 
+              <div className="flex items-start gap-3 py-2">
+                <input 
+                  type="checkbox" 
+                  id="terms"
+                  checked={formData.termsAccepted}
+                  onChange={(e) => setFormData({...formData, termsAccepted: e.target.checked})}
+                  className="mt-1 w-4 h-4 rounded border-white/10 bg-[#0F0F0F] text-tcg-green focus:ring-tcg-green accent-tcg-green"
+                />
+                <label htmlFor="terms" className="text-[11px] text-white/40 font-body leading-tight">
+                  I AGREE TO THE <Link href="/terms" className="text-tcg-green hover:underline">TERMS OF SERVICE</Link> AND <Link href="/disclaimer" className="text-tcg-green hover:underline">LEGAL DISCLAIMER</Link>. I UNDERSTAND THAT TRADING INVOLVES RISK.
+                </label>
+              </div>
+
               <div className="pt-2">
-                <Link href="/checkout" className="px-6 py-4 text-xs font-bold text-black bg-tcg-green rounded-xl tracking-widest hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(57,255,20,0.4)] transition-all uppercase mt-2 w-full flex items-center justify-center">
-                  Continue to Payment &rarr;
-                </Link>
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-4 text-xs font-bold text-black bg-tcg-green rounded-xl tracking-widest hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(57,255,20,0.4)] transition-all uppercase mt-2 w-full flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : 'Continue to Dashboard →'}
+                </button>
               </div>
             </form>
 
@@ -72,3 +180,4 @@ export default function RegisterPage() {
     </main>
   );
 }
+

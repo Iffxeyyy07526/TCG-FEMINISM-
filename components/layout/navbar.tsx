@@ -6,10 +6,12 @@ import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { LiveBadge } from '../ui/live-badge';
 import { Logo } from '../ui/logo';
+import { supabase } from '@/lib/supabase';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -17,7 +19,23 @@ export function Navbar() {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    // Check auth session
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session);
+    };
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+      setIsLoggedIn(!!session);
+    });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const navLinks = [
@@ -30,17 +48,20 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
         isScrolled
-          ? 'bg-black/60 backdrop-blur-xl border-b border-white/5'
-          : 'bg-transparent'
+          ? 'py-4'
+          : 'py-0'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div className={`max-w-7xl mx-auto px-6 h-20 flex items-center justify-between transition-all duration-700 ${
+        isScrolled 
+          ? 'glass rounded-3xl mx-4 sm:mx-10 shadow-2xl shadow-tcg-green/5' 
+          : 'bg-transparent border-b border-transparent'
+      }`}>
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group relative origin-left hover:scale-105 transition-transform duration-300">
-          <Logo className="w-10 h-10 text-tcg-green drop-shadow-[0_0_12px_#39FF14]" />
-          <span className="font-display text-2xl tracking-wide hidden sm:block">THE CAPITAL GURU</span>
+          <Logo mode="full" className="h-10 sm:h-12" src="https://i.ibb.co/7J5yFQ9N/72178-removebg-preview-1.png" />
           <LiveBadge text="" className="ml-2 px-2 py-1 hidden lg:flex" />
         </Link>
 
@@ -63,22 +84,48 @@ export function Navbar() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-4">
-          <Link href="/dashboard" className="px-6 py-2.5 text-xs font-bold text-tcg-green border border-tcg-green/30 rounded-md tracking-widest hover:bg-tcg-green/10 transition-all uppercase">
-            Dashboard
-          </Link>
-          <Link href="/register" className="px-6 py-2.5 text-xs font-bold text-black bg-tcg-green rounded-md tracking-widest hover:shadow-[0_0_25px_rgba(57,255,20,0.5)] transition-all uppercase">
-            Get Started
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link href="/dashboard" className="px-5 py-2 text-xs font-bold text-tcg-green border border-tcg-green/30 rounded-lg tracking-widest hover:bg-tcg-green/10 transition-all uppercase">
+                Dashboard
+              </Link>
+              <button 
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  window.location.href = '/';
+                }}
+                className="px-5 py-2 text-xs font-bold text-red-500 border border-red-500/30 rounded-lg tracking-widest hover:bg-red-500/10 transition-all uppercase"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="px-5 py-2 text-xs font-bold text-white/60 hover:text-white tracking-widest transition-all uppercase">
+                Login
+              </Link>
+              <Link href="/register" className="px-6 py-2.5 text-xs font-black text-black bg-tcg-green rounded-lg tracking-tighter hover:shadow-[0_0_25px_rgba(57,255,20,0.5)] transition-all uppercase scale-110 active:scale-100">
+                JOIN NOW
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden text-white p-2"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="flex items-center gap-4 md:hidden">
+          {!isLoggedIn && (
+            <Link href="/register" className="px-5 py-2 text-[10px] font-black text-black bg-tcg-green rounded-lg tracking-widest uppercase shadow-[0_0_15px_rgba(57,255,20,0.3)]">
+              JOIN
+            </Link>
+          )}
+          <button
+            className="text-white p-2 hover:bg-white/5 rounded-lg transition-colors"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer */}
@@ -100,12 +147,31 @@ export function Navbar() {
             </Link>
           ))}
           <div className="mt-auto flex flex-col gap-4 pb-12">
-            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="px-6 py-3 text-center text-xs font-bold text-tcg-green border border-tcg-green/30 rounded-md tracking-widest hover:bg-tcg-green/10 transition-all uppercase w-full">
-              Dashboard
-            </Link>
-            <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="px-6 py-3 text-center text-xs font-bold text-black bg-tcg-green rounded-md tracking-widest hover:shadow-[0_0_25px_rgba(57,255,20,0.5)] transition-all uppercase w-full">
-              Get Started
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="px-6 py-3 text-center text-xs font-bold text-tcg-green border border-tcg-green/30 rounded-md tracking-widest hover:bg-tcg-green/10 transition-all uppercase w-full">
+                  Dashboard
+                </Link>
+                <button 
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = '/';
+                  }}
+                  className="px-6 py-3 text-center text-xs font-bold text-red-500 border border-red-500/30 rounded-md tracking-widest hover:bg-red-500/10 transition-all uppercase w-full"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="px-6 py-4 text-center text-sm font-black text-black bg-tcg-green rounded-xl tracking-widest uppercase w-full shadow-[0_0_20px_rgba(57,255,20,0.3)]">
+                  JOIN NOW
+                </Link>
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="px-6 py-4 text-center text-sm font-bold text-white/60 border border-white/10 rounded-xl tracking-widest uppercase w-full">
+                  Login
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -62,7 +62,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       name: 'The Capital Guru',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://thecapitalguru.net/logo.png',
+        url: 'https://i.ibb.co/1Gbm0Csd/main-logo.jpg',
       },
     },
     datePublished: '2024-03-01T00:00:00Z', // Use real date in prod

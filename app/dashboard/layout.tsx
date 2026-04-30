@@ -1,16 +1,25 @@
+'use client';
+
 import Link from 'next/link';
-
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
-
-const DashboardLogo = () => (
-  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-tcg-green drop-shadow-[0_0_8px_#39FF14]">
-    <rect x="12" y="8" width="8" height="12" rx="2" fill="currentColor" />
-    <rect x="15" y="4" width="2" height="24" rx="1" fill="currentColor" />
-    <path d="M22 14L28 8M28 8H23M28 8V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+import { Logo } from '@/components/ui/logo';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Simple localStorage auth check
+    const auth = localStorage.getItem('tcg_auth');
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 0);
+  }, [router]);
+
+  if (isLoading) return <div className="min-h-screen bg-black flex items-center justify-center font-display text-tcg-green animate-pulse">TCG LOADING...</div>;
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col md:flex-row relative overflow-hidden">
       {/* Background FX */}
@@ -23,8 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-black/40 backdrop-blur-xl border-r border-white/5 flex flex-col h-auto md:h-screen sticky top-0 z-20">
         <div className="p-6 border-b border-white/5 flex items-center gap-3">
-          <DashboardLogo />
-          <span className="font-display text-xl tracking-widest uppercase">THE CAPITAL GURU</span>
+          <Logo mode="full" className="h-8" />
         </div>
 
         <Sidebar />
