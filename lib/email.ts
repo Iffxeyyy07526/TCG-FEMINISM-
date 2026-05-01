@@ -6,7 +6,8 @@ function getResend() {
   if (!resendClient) {
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
-      throw new Error('RESEND_API_KEY is not defined in environment variables.');
+      console.warn('RESEND_API_KEY is not defined. Email service will be skipped.');
+      return null;
     }
     resendClient = new Resend(apiKey);
   }
@@ -18,6 +19,7 @@ const FROM_EMAIL = 'The Capital Guru <notifications@thecapitalguru.net>';
 export async function sendRegistrationAlert(email: string, fullName: string) {
   try {
     const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
@@ -43,6 +45,7 @@ export async function sendRegistrationAlert(email: string, fullName: string) {
 export async function sendLoginAlert(email: string, ip?: string) {
   try {
     const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
@@ -67,6 +70,7 @@ export async function sendLoginAlert(email: string, ip?: string) {
 export async function sendPaymentInitiatedAlert(email: string, plan: string, price: string) {
   try {
     const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
@@ -100,6 +104,7 @@ export async function sendPaymentInitiatedAlert(email: string, plan: string, pri
 export async function sendApprovalNotification(email: string, telegramLink: string = 'https://t.me/thecapitalguru') {
   try {
     const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
@@ -129,6 +134,7 @@ export async function sendApprovalNotification(email: string, telegramLink: stri
 export async function send7DayExpiryWarning(email: string) {
   try {
     const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
@@ -154,6 +160,7 @@ export async function send7DayExpiryWarning(email: string) {
 export async function send3DayExpiryWarning(email: string) {
   try {
     const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
@@ -179,6 +186,7 @@ export async function send3DayExpiryWarning(email: string) {
 export async function sendFinalExpirationNotice(email: string) {
   try {
     const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,

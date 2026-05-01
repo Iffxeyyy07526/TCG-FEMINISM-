@@ -1,22 +1,32 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const getSupabase = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
 
-  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl === 'your_supabase_project_url') {
-    if (typeof window !== 'undefined') {
-      console.error('Supabase credentials missing. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables.');
-    }
-    // Return a dummy client that throws on use to force real setup
-    return new Proxy({}, {
-      get: () => {
-        throw new Error('Supabase credentials not configured. App requires real Supabase setup.');
+// Create a dummy client if URL is missing to prevent immediate crash on module load
+export const supabase: SupabaseClient = (supabaseUrl && supabaseAnonKey) 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : new Proxy({} as any, {
+      get: (target, prop) => {
+        if (prop === 'auth') {
+          return new Proxy({}, {
+            get: () => () => {
+              console.error('Supabase URL or Key is missing. Please check your environment variables.');
+              return Promise.resolve({ data: { user: null, session: null }, error: new Error('Supabase not configured') });
+            }
+          });
+        }
+        return () => {
+          console.error('Supabase URL or Key is missing. Please check your environment variables.');
+          return {
+            select: () => ({ order: () => ({ single: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }) }) }),
+            insert: () => ({ select: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }) }),
+            upsert: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
+            update: () => ({ eq: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }) }),
+            delete: () => ({ eq: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }) }),
+            eq: () => ({ single: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }) }),
+            single: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
+          };
+        };
       }
     });
-  }
-
-  return createClient(supabaseUrl, supabaseAnonKey);
-};
-
-export const supabase: SupabaseClient = getSupabase() as any;
