@@ -39,8 +39,8 @@ export function Footer() {
             <h4 className="font-display text-xl tracking-wider text-white uppercase font-bold">Connect</h4>
             <ul className="flex flex-col gap-3 font-body text-sm text-white/50">
               <li><a href="https://t.me/TheCapitalGuruSupport" target="_blank" rel="noopener noreferrer" className="hover:text-tcg-green transition-colors flex items-center gap-2 group"><span className="group-hover:translate-x-1 transition-transform">💬</span> Telegram Support</a></li>
-              <li><a href="#" className="hover:text-tcg-green transition-colors">Instagram</a></li>
-              <li><a href="#" className="hover:text-tcg-green transition-colors">Twitter / X</a></li>
+              <li><a href="https://www.instagram.com/thecapitalguru" target="_blank" rel="noopener noreferrer" className="hover:text-tcg-green transition-colors">Instagram</a></li>
+              <li><a href="https://x.com/thecapitalguru" target="_blank" rel="noopener noreferrer" className="hover:text-tcg-green transition-colors">Twitter / X</a></li>
               <li><a href="mailto:support@thecapitalguru.net" className="hover:text-tcg-green transition-colors">support@thecapitalguru.net</a></li>
             </ul>
           </div>

@@ -72,10 +72,13 @@ export const metadata: Metadata = {
   },
 };
 
+import { SebiBanner } from '@/components/ui/sebi-banner';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} dark`}>
       <body className="bg-tcg-black text-white font-body antialiased relative selection:bg-tcg-green/30 selection:text-tcg-green">
+        <SebiBanner />
         {children}
       </body>
     </html>

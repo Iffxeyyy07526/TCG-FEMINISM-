@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
             <p>Your information is used strictly for:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Verifying your subscription status.</li>
-              <li>Providing access to the private Telegram and Discord channels.</li>
+              <li>Providing access to the private Telegram channels.</li>
               <li>Sending technical updates and critical market alerts.</li>
             </ul>
           </section>

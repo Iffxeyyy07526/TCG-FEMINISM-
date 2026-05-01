@@ -21,30 +21,40 @@ export function AnimatedCounter({
   const hasAnimated = useRef(false);
 
   useEffect(() => {
+    let controls: { stop: () => void } | undefined;
+    
     if (isInView && !hasAnimated.current) {
       hasAnimated.current = true;
-      const controls = animate(from, to, {
-        duration,
-        ease: 'easeOut',
-        onUpdate(value) {
-          if (nodeRef.current) {
-            let formattedStr = value.toString();
-            
-            if (format === 'percent') {
-              formattedStr = `${value.toFixed(1)}%`;
-            } else if (format === 'plus') {
-              formattedStr = `${Math.floor(value)}+`;
-            } else if (format === 'currency') {
-              formattedStr = Math.floor(value).toLocaleString();
-            } else {
-              formattedStr = Math.floor(value).toString();
+      
+      // Small delay to ensure component is fully mounted and visible
+      const timeout = setTimeout(() => {
+        controls = animate(from, to, {
+          duration,
+          ease: 'easeOut',
+          onUpdate(value) {
+            if (nodeRef.current) {
+              let formattedStr = '';
+              
+              if (format === 'percent') {
+                formattedStr = `${value.toFixed(1)}%`;
+              } else if (format === 'plus') {
+                formattedStr = `${Math.floor(value).toLocaleString()}+`;
+              } else if (format === 'currency') {
+                formattedStr = Math.floor(value).toLocaleString();
+              } else {
+                formattedStr = Math.floor(value).toString();
+              }
+              
+              nodeRef.current.textContent = formattedStr;
             }
-            
-            nodeRef.current.textContent = formattedStr;
-          }
-        },
-      });
-      return controls.stop;
+          },
+        });
+      }, 100);
+
+      return () => {
+        clearTimeout(timeout);
+        controls?.stop();
+      };
     }
   }, [isInView, from, to, duration, format]);
 

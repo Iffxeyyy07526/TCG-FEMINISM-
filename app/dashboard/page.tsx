@@ -1,17 +1,18 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SignalCard } from '@/components/ui/signal-card';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
-import { ShieldAlert, CreditCard, ExternalLink, History, Lock, CheckCircle2, Loader2 } from 'lucide-react';
+import { ShieldAlert, CreditCard, ExternalLink, History, Lock, CheckCircle2, Loader2, AlertTriangle, Target, TrendingUp, ShieldCheck, XCircle, ArrowUpRight, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { useProfile } from '@/hooks/use-profile';
+import { motion } from 'motion/react';
 
 export default function DashboardPage() {
-  const [userStatus, setUserStatus] = useState<'pending' | 'approved'>('pending');
-  const [userPlan, setUserPlan] = useState<string>('STARTER');
-  const [userName, setUserName] = useState<string>('Trader');
+  const { profile, loading: profileLoading } = useProfile();
   const [signals, setSignals] = useState<any[]>([]);
   const [stats, setStats] = useState({ total: 0, accuracy: 0 });
   const [loading, setLoading] = useState(true);
@@ -20,35 +21,6 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          router.push('/login');
-          return;
-        }
-
-        // Fetch profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('status, expires_at, plan, full_name')
-          .eq('id', user.id)
-          .single();
-
-        if (profile) {
-          let status = profile.status as 'pending' | 'approved';
-          setUserName(profile.full_name || 'Trader');
-          
-          // Check for expiration
-          if (status === 'approved' && profile.expires_at) {
-            const expiry = new Date(profile.expires_at);
-            if (new Date() > expiry) {
-              status = 'pending';
-            }
-          }
-          
-          setUserStatus(status);
-          setUserPlan(profile.plan || 'STARTER');
-        }
-
         // Fetch signals
         const { data: signalsData } = await supabase
           .from('signals')
@@ -83,9 +55,44 @@ export default function DashboardPage() {
     fetchData();
   }, [router]);
 
-  const isApproved = userStatus === 'approved';
+  const isApproved = profile?.status === 'approved';
+  const isPending = profile?.status === 'pending';
+  const isRejected = profile?.status === 'rejected';
 
-  if (loading) {
+  const getStatusConfig = () => {
+    if (isApproved) return {
+      icon: <ShieldCheck size={32} className="text-tcg-green" />,
+      title: "Security Node Active",
+      subtitle: "Institutional data stream is now synchronized with your terminal.",
+      color: "border-tcg-green/20 bg-tcg-green/5",
+      badge: "LIVE_FEED_ON"
+    };
+    if (isPending) return {
+      icon: <Loader2 size={32} className="animate-spin text-tcg-green" />,
+      title: "Verification In Progress",
+      subtitle: "Our nodes are currently verifying your payment. Sync will complete shortly.",
+      color: "border-tcg-green/10 bg-tcg-green/[0.02]",
+      badge: "VERIFYING_BLOCK"
+    };
+    if (isRejected) return {
+      icon: <XCircle size={32} className="text-red-500" />,
+      title: "Access Denied",
+      subtitle: "Verification failed. Please contact support or re-upload your proof.",
+      color: "border-red-500/20 bg-red-500/5",
+      badge: "INVALID_CREDENTIALS"
+    };
+    return {
+      icon: <AlertTriangle size={32} className="text-yellow-500" />,
+      title: "Account Restricted",
+      subtitle: "Complete your activation to unlock institutional signals and professional tools.",
+      color: "border-yellow-500/20 bg-yellow-500/5",
+      badge: "RESTRICTED_MODE"
+    };
+  };
+
+  const statusConfig = getStatusConfig();
+
+  if (profileLoading || (loading && !profile)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <Loader2 className="animate-spin text-tcg-green" size={48} />
@@ -94,188 +101,267 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-20 mt-10 px-6">
-      {/* Status Banner */}
-      {!isApproved && (
-        <div className="bg-tcg-green/5 border border-tcg-green/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-tcg-green/5 blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-          <div className="flex items-center gap-5 relative z-10">
-            <div className="w-16 h-16 rounded-2xl bg-tcg-green/10 flex items-center justify-center text-tcg-green shadow-[0_0_20px_rgba(57,255,20,0.1)] shrink-0">
-              {userStatus === 'pending' ? <Loader2 className="animate-spin" size={32} /> : <ShieldAlert size={32} />}
-            </div>
-            <div>
-              <h2 className="font-display text-2xl font-black uppercase text-white tracking-tight">
-                {userStatus === 'pending' ? 'Verification In Progress' : 'Account Restricted'}
-              </h2>
-              <p className="text-white/40 text-sm font-medium">
-                {userStatus === 'pending' 
-                  ? 'Our nodes are currently verifying your payment screenshot. Check WhatsApp for updates.' 
-                  : 'Your account is in safe mode. Complete activation to unlock institutional signals.'}
-              </p>
-            </div>
+    <div className="max-w-6xl mx-auto space-y-12 pb-20">
+      {/* Dynamic Status Banner */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className={cn(
+          "border rounded-[2.5rem] p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative group transition-all duration-500",
+          statusConfig.color
+        )}
+      >
+        <div className="absolute top-0 right-0 w-96 h-96 bg-tcg-green/5 blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none group-hover:bg-tcg-green/10 transition-colors"></div>
+        
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-md">
+            {statusConfig.icon}
           </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h2 className="font-display text-2xl md:text-3xl font-black uppercase text-white tracking-tighter">
+                {statusConfig.title}
+              </h2>
+              <span className="font-mono text-[10px] px-3 py-1 bg-white/5 border border-white/10 rounded-full text-tcg-green/60 font-black">
+                {statusConfig.badge}
+              </span>
+            </div>
+            <p className="text-white/40 text-sm md:text-base font-medium max-w-xl">
+              {statusConfig.subtitle}
+            </p>
+          </div>
+        </div>
+
+        {!isApproved && (
           <div className="flex gap-4 relative z-10 w-full md:w-auto">
-            <Link href={`/checkout?plan=${userPlan.toLowerCase()}`} className="btn-primary px-8 py-4 whitespace-nowrap group flex-1 text-center">
-              Complete Payment <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">&rarr;</span>
+            <Link href="/pricing" className="btn-primary px-10 py-5 whitespace-nowrap group flex-1 text-center shadow-[0_0_30px_rgba(57,255,20,0.2)]">
+              {isRejected ? 'Re-Apply Now' : 'Complete Activation'} <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">&rarr;</span>
             </Link>
           </div>
-        </div>
-      )}
+        )}
+      </motion.div>
 
       {/* Top Header / Market Status */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="font-display text-4xl font-black uppercase tracking-tighter text-white">
-            Command <span className="text-tcg-green text-glow">Center.</span>
-          </h1>
-          <p className="font-body text-sm font-medium text-white/40">Terminal ID: TCG-XP-8842 // {isApproved ? 'FULL ACCESS' : 'RESTRICTED'}</p>
+      <div className="flex flex-col md:flex-row justify-between items-end gap-8">
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-10 bg-tcg-green rounded-full shadow-[0_0_20px_#39FF14]"></div>
+            <h1 className="font-display text-5xl md:text-6xl font-black uppercase tracking-tighter text-white leading-none">
+              Welcome back, <br/>
+              <span className="text-tcg-green text-glow">{profile?.full_name?.split(' ')[0] || 'Trader'}.</span>
+            </h1>
+          </div>
+          <p className="font-mono text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] text-white/30 pl-5 flex items-center gap-2">
+            Status: {isApproved ? <span className="text-tcg-green">UNRESTRICTED_ACCESS</span> : <span className="text-yellow-500">LIMITED_PROTOCOL</span>} 
+            <span className="mx-2 opacity-20">|</span> 
+            NODE_ID: {profile?.id?.substring(0, 8)}
+          </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="glass shadow-[0_0_20px_rgba(0,0,0,0.5)] rounded-2xl px-5 py-3 flex items-center gap-4 border-white/5">
-            <div className="w-2.5 h-2.5 rounded-full bg-tcg-green animate-pulse shadow-[0_0_12px_#39FF14]"></div>
+        
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="flex-1 md:flex-none bg-white/[0.03] border border-white/5 backdrop-blur-md rounded-2xl px-6 py-4 flex items-center gap-4 group hover:border-tcg-green/30 transition-colors">
+            <div className="relative">
+              <div className="w-3 h-3 rounded-full bg-tcg-green animate-ping absolute inset-0 opacity-40"></div>
+              <div className="w-3 h-3 rounded-full bg-tcg-green shadow-[0_0_12px_#39FF14] relative"></div>
+            </div>
             <div>
-              <div className="font-body text-[10px] font-black uppercase tracking-[0.2em] text-white/30">NIFTY 50</div>
-              <div className="font-body text-xs font-black text-tcg-green">MARKET ACTIVE</div>
+              <div className="font-mono text-[10px] font-black uppercase tracking-widest text-white/40">Market Node</div>
+              <div className="font-display text-sm font-black text-tcg-green uppercase">NSE_LIVE_ON</div>
             </div>
           </div>
           
-          {isApproved ? (
-            <button className="bg-[#2AABEE] text-white px-6 py-3 rounded-2xl text-xs font-black hover:bg-[#229ED9] transition-all flex items-center gap-2 uppercase tracking-widest hover:shadow-[0_0_25px_rgba(42,171,238,0.4)] hover:scale-105 active:scale-95">
-              <span>📱</span> TELEGRAM ACCESS
-            </button>
-          ) : (
-            <div className="bg-white/5 border border-white/10 text-white/20 px-6 py-3 rounded-2xl text-xs font-black flex items-center gap-2 uppercase tracking-widest cursor-not-allowed">
-              <Lock size={14} /> TG LOCKED
-            </div>
-          )}
+          <button className={cn(
+            "h-14 px-8 rounded-2xl text-[10px] font-black transition-all flex items-center gap-3 uppercase tracking-[0.2em] group overflow-hidden relative flex-1 md:flex-none",
+            isApproved 
+              ? "bg-[#2AABEE] text-white hover:shadow-[0_0_30px_rgba(42,171,238,0.4)]" 
+              : "bg-white/5 border border-white/10 text-white/20 cursor-not-allowed"
+          )}>
+            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12"></div>
+            {isApproved ? (
+              <><MessageCircle size={18} /> Telegram Sync</>
+            ) : (
+              <><Lock size={16} /> Stream Encrypted</>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        {/* Signals Overview / Stats */}
-        <div className="md:col-span-2 card-premium relative group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-tcg-green/5 blur-[50px] -translate-y-1/2 translate-x-1/2 pointer-events-none transition-all group-hover:scale-125"></div>
-          <div className="font-body text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-4 font-mono">Institutional Edge Index</div>
-          <div className="font-display text-7xl font-black text-tcg-green mb-4 tracking-tighter text-glow">
+        {/* Performance Index */}
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="md:col-span-2 card-premium p-10 relative overflow-hidden group"
+        >
+          <div className="absolute top-0 right-0 w-80 h-80 bg-tcg-green/10 blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none group-hover:scale-150 transition-transform duration-700"></div>
+          
+          <div className="flex items-start justify-between mb-10">
+            <div>
+              <div className="font-mono text-[11px] font-black uppercase tracking-[0.4em] text-white/20 mb-2">Alpha Stream Index</div>
+              <h3 className="font-display text-3xl font-black text-white uppercase tracking-tighter">Total Signal Distro</h3>
+            </div>
+            <div className="w-14 h-14 rounded-2xl bg-tcg-green/5 border border-tcg-green/10 flex items-center justify-center text-tcg-green">
+              <TrendingUp size={28} />
+            </div>
+          </div>
+
+          <div className="font-display text-8xl md:text-9xl font-black text-tcg-green mb-6 tracking-tighter text-glow flex items-baseline gap-4">
             <AnimatedCounter to={isApproved ? stats.total : 156} duration={2} format="plus" />
           </div>
-          <p className="font-body text-sm text-white/50 font-medium leading-relaxed">
-            High-conviction setups identified by our proprietary flow algorithms {isApproved ? 'this year' : 'in public records'}.
-          </p>
-        </div>
+          
+          <div className="flex items-center gap-3 text-white/40 font-medium">
+            <Target size={18} className="text-tcg-green" />
+            <p className="text-sm">Proprietary setups distributed to pro-terminals this cycle.</p>
+          </div>
+        </motion.div>
 
-        {/* Win Rate Tracker */}
-        <div className="card-premium flex flex-col items-center justify-center relative group">
-          <div className="font-body text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-8 w-full text-left font-mono">Success Rate</div>
-          <div className="relative w-36 h-36 flex items-center justify-center">
+        {/* Accuracy Tracker */}
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="card-premium p-10 flex flex-col items-center justify-center relative group"
+        >
+          <div className="font-mono text-[11px] font-black uppercase tracking-[0.4em] text-white/20 mb-10 w-full text-left">Edge Precision</div>
+          
+          <div className="relative w-44 h-44 flex items-center justify-center">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="10" />
-              <circle 
+              <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="8" />
+              <motion.circle 
+                initial={{ strokeDashoffset: 276 }}
+                animate={{ strokeDashoffset: isApproved ? (276 - (stats.accuracy * 276) / 100) : 138 }}
+                transition={{ duration: 2, ease: "easeOut", delay: 0.5 }}
                 cx="50" 
                 cy="50" 
-                r="45" 
+                r="44" 
                 fill="none" 
                 stroke="#39FF14" 
-                strokeWidth="10" 
-                strokeDasharray="283" 
-                strokeDashoffset={isApproved ? (283 - (stats.accuracy * 283) / 100) : 140} 
-                className="drop-shadow-[0_0_12px_rgba(57,255,20,0.4)] transition-all duration-1000 ease-out" 
-                strokeLinecap="round" 
+                strokeWidth="8" 
+                strokeDasharray="276.46" 
+                strokeLinecap="round"
+                className="drop-shadow-[0_0_15px_rgba(57,255,20,0.6)]" 
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-display text-4xl font-black text-white">{isApproved ? `${stats.accuracy}%` : '56%'}</span>
-              <span className="text-[10px] text-white/30 font-black tracking-widest mt-1 uppercase">Accuracy</span>
+              <span className="font-display text-5xl font-black text-white text-glow">
+                {isApproved ? `${stats.accuracy}%` : '56%'}
+              </span>
+              <span className="font-mono text-[10px] text-tcg-green font-black tracking-[0.2em] mt-2 uppercase">Precision</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Latest Signals */}
-        <div className="md:col-span-2 card-premium">
-          <div className="flex justify-between items-center mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-tcg-green/5 border border-tcg-green/10 flex items-center justify-center text-tcg-green">
-                {isApproved ? <ExternalLink size={20} /> : <History size={20} />}
-              </div>
-              <h2 className="font-display text-2xl font-black uppercase tracking-tighter text-white">
-                {isApproved ? 'Active Intel' : 'Legacy Log'}
+        {/* Signals Feed */}
+        <div className="md:col-span-2 space-y-6">
+          <div className="flex justify-between items-end px-2">
+            <div className="space-y-1">
+              <h2 className="font-display text-3xl font-black uppercase tracking-tighter text-white">
+                Institutional <span className="text-tcg-green">Flow.</span>
               </h2>
+              <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest italic">Real-time signal dissemination pipeline</p>
             </div>
-            {!isApproved && (
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 bg-white/5 text-white/40 border border-white/10 rounded-full">
-                 Locked Index
-              </span>
+            {isApproved ? (
+               <Link href="/dashboard/signals" className="text-[11px] font-black text-tcg-green uppercase tracking-widest hover:underline flex items-center gap-2 mb-1">
+                 View Historical Logs <History size={14} />
+               </Link>
+            ) : (
+              <div className="px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2">
+                <Lock size={12} className="text-red-500" />
+                <span className="font-mono text-[10px] font-black text-red-500 uppercase tracking-widest">Feed Locked</span>
+              </div>
             )}
           </div>
           
-          <div className={cn("space-y-6 mb-8 transition-all duration-500", !isApproved && "opacity-30 blur-[2px] select-none pointer-events-none")}>
-            {signals.length > 0 ? (
-              signals.map((signal, idx) => (
-                <SignalCard key={signal.id || idx} data={{
-                  type: signal.type,
-                  ticker: signal.ticker,
-                  price: signal.price,
-                  target: signal.target,
-                  sl: signal.sl,
-                  rrRatio: signal.rr_ratio,
-                  gain: signal.gain
-                }} />
-              ))
-            ) : (
-              <div className="text-center py-10 text-white/20 uppercase tracking-widest text-xs">No signals distributed today</div>
-            )}
-          </div>
+          <div className="card-premium p-1 relative overflow-hidden">
+             {!isApproved && (
+               <div className="absolute inset-0 z-10 backdrop-blur-[6px] bg-black/40 flex flex-col items-center justify-center p-8 text-center space-y-6">
+                 <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/20">
+                   <Lock size={32} />
+                 </div>
+                 <div className="space-y-2 max-w-sm">
+                   <h3 className="font-display text-2xl font-black uppercase text-white tracking-tighter">Encrypted Signal Stream</h3>
+                   <p className="text-white/40 text-sm font-medium">Your node currently lacks the clearance to decrypt real-time institutional flow.</p>
+                 </div>
+                 <Link href="/pricing" className="btn-primary py-4 px-10 shadow-[0_0_20px_rgba(57,255,20,0.2)]">Upgrade Clearance</Link>
+               </div>
+             )}
 
-          <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-between">
-            <p className="text-[11px] text-white/30 font-medium max-w-sm italic">
-              * Active signals are reserved for Approved members only. Historical data is provided for transparency.
-            </p>
-            {!isApproved && (
-              <Link href="/pricing" className="text-tcg-green text-[10px] font-black uppercase tracking-widest hover:underline flex items-center gap-2">
-                Unlock Active Stream <ExternalLink size={12} />
-              </Link>
-            )}
+             <div className="p-8 space-y-6">
+              {signals.length > 0 ? (
+                signals.map((signal, idx) => (
+                  <SignalCard 
+                    key={signal.id || idx} 
+                    data={{
+                      type: signal.type,
+                      ticker: signal.ticker,
+                      price: signal.price,
+                      target: signal.target,
+                      sl: signal.sl,
+                      rrRatio: signal.rr_ratio,
+                      gain: signal.gain
+                    }} 
+                  />
+                ))
+              ) : (
+                <div className="text-center py-20">
+                  <Loader2 className="animate-spin text-white/10 mx-auto mb-4" size={32} />
+                  <div className="font-mono text-[10px] text-white/20 uppercase tracking-[0.3em]">Establishing link with data nodes...</div>
+                </div>
+              )}
+             </div>
           </div>
         </div>
 
-        {/* Security / Status */}
-        <div className="card-premium space-y-8 h-fit">
-          <div>
-            <div className="font-body text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-6 font-mono">Security Node</div>
-            
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border transition-colors", isApproved ? "bg-tcg-green/5 border-tcg-green/20 text-tcg-green shadow-[0_0_15px_rgba(57,255,20,0.1)]" : "bg-red-500/5 border-red-500/20 text-red-500")}>
-                  {isApproved ? <CheckCircle2 size={20} /> : <Lock size={20} />}
+        {/* Account Integrity */}
+        <div className="space-y-6">
+          <div className="px-2">
+             <h2 className="font-display text-3xl font-black uppercase tracking-tighter text-white">System <span className="text-tcg-green">Auth.</span></h2>
+          </div>
+          
+          <div className="card-premium p-8 space-y-10 group">
+            <div className="space-y-8">
+              <div className="flex items-center gap-5">
+                <div className={cn(
+                  "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-500",
+                  isApproved 
+                    ? "bg-tcg-green/5 border-tcg-green/20 text-tcg-green shadow-[0_0_20px_rgba(57,255,20,0.15)] scale-110" 
+                    : "bg-white/[0.03] border-white/10 text-white/20"
+                )}>
+                  {isApproved ? <ShieldCheck size={28} /> : <Lock size={28} />}
                 </div>
                 <div>
-                  <div className="font-body font-black text-sm text-white uppercase tracking-tight">Access Token</div>
-                  <div className={cn("text-[10px] font-black uppercase tracking-widest", isApproved ? "text-tcg-green" : "text-white/30")}>
-                    {isApproved ? 'LIVE_STREAM_ON' : 'ENCRYPTED_LOCKED'}
+                  <div className="font-display font-black text-lg text-white uppercase tracking-tight">Security Protocol</div>
+                  <div className={cn("font-mono text-[10px] font-black uppercase tracking-[0.2em] mt-1", isApproved ? "text-tcg-green" : "text-white/20")}>
+                    {isApproved ? 'SECURE_NODE_ACTIVE' : 'SECURITY_ENCRYPTED'}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40">
-                  <CreditCard size={20} />
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-tcg-green group-hover:bg-tcg-green/10 transition-colors">
+                  <CreditCard size={28} />
                 </div>
                 <div>
-                  <div className="font-body font-black text-sm text-white uppercase tracking-tight">Subscription</div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-white/30">
-                    {isApproved ? 'PROFESSIONAL-ELITE' : 'INACTIVE_VOID'}
+                  <div className="font-display font-black text-lg text-white uppercase tracking-tight">Plan Clearance</div>
+                  <div className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-tcg-green mt-1">
+                    {profile?.plan === 'starter' ? 'STARTER MEMBER' : 
+                     profile?.plan === 'pro' ? 'PRO MEMBER' : 
+                     profile?.plan === 'elite' ? 'ELITE MEMBER' : 
+                     'ACCESS_LIMITED'}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="pt-8 border-t border-white/5">
-            <Link href="/dashboard/settings" className="text-xs font-black uppercase tracking-widest text-white/30 hover:text-white transition-colors flex items-center justify-between">
-              Account Safety <span>&rarr;</span>
-            </Link>
+            <div className="pt-8 border-t border-white/5 space-y-4">
+              <Link href="/dashboard/settings" className="group/link flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors">
+                <span className="font-display text-xs font-black uppercase tracking-widest text-white/30 group-hover/link:text-white transition-colors">Terminal Settings</span>
+                <ExternalLink size={14} className="text-white/20 group-hover/link:text-tcg-green transition-colors" />
+              </Link>
+              <Link href="/checkout" className="group/link flex items-center justify-between p-3 rounded-xl hover:bg-tcg-green/10 transition-colors">
+                <span className="font-display text-xs font-black uppercase tracking-widest text-tcg-green">Renew Membership</span>
+                <ArrowUpRight size={14} className="text-tcg-green" />
+              </Link>
+            </div>
           </div>
         </div>
 

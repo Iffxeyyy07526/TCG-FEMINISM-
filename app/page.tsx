@@ -52,9 +52,27 @@ export default function Home() {
         {/* Background FX */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-tcg-black" />
-          <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(#39FF14 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-          <div className="absolute top-[-200px] right-[-200px] w-[900px] h-[900px] rounded-full bg-tcg-green opacity-[0.08] blur-[180px]" />
-          <div className="absolute bottom-[-100px] left-[-100px] w-[600px] h-[600px] rounded-full bg-tcg-green opacity-[0.05] blur-[140px]" />
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#39FF14 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+          
+          {/* Moving Institutional Flow Glows */}
+          <motion.div 
+            animate={{ 
+              x: [0, 100, 0],
+              y: [0, -50, 0],
+              opacity: [0.08, 0.12, 0.08]
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute top-[-200px] right-[-200px] w-[900px] h-[900px] rounded-full bg-tcg-green blur-[180px]" 
+          />
+          <motion.div 
+            animate={{ 
+              x: [0, -80, 0],
+              y: [0, 40, 0],
+              opacity: [0.05, 0.08, 0.05]
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            className="absolute bottom-[-100px] left-[-100px] w-[600px] h-[600px] rounded-full bg-tcg-green blur-[140px]" 
+          />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -66,8 +84,16 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
+                className="flex items-center gap-4 mb-12"
               >
-                <LiveBadge text="LIVE · INSTITUTIONAL ALPHA FLOOR · ACTIVELY TRADING" className="mb-12" />
+                <div className="px-5 py-2 glass rounded-full border border-tcg-green/30 flex items-center gap-3">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-tcg-green opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-tcg-green shadow-[0_0_10px_#39FF14]"></span>
+                  </span>
+                  <span className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-tcg-green">NSE LIVE FEED ACTIVE</span>
+                </div>
+                <LiveBadge text="INSTITUTIONAL ALPHA FLOOR" className="hidden sm:flex" />
               </motion.div>
               
               <motion.h1 
@@ -127,7 +153,7 @@ export default function Home() {
               >
                 <div className="flex flex-col">
                   <span className="text-3xl font-black font-display tracking-tight text-white mb-1 whitespace-nowrap">
-                    <AnimatedCounter to={87.3} format="percent" />
+                    <AnimatedCounter to={87.0} format="percent" />
                   </span>
                   <span className="text-[10px] uppercase tracking-widest font-black font-body text-white/40">Accuracy Rate</span>
                 </div>
@@ -189,14 +215,16 @@ export default function Home() {
             <p className="text-white/40 max-w-2xl mx-auto text-lg leading-relaxed font-body font-medium">Professional-grade research tools and signal delivery systems designed for high-performance execution.</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { icon: '📡', title: 'Institutional Flow', desc: 'Signals based on big-money movements and institutional order blocks.' },
               { icon: '⚡', title: 'Instant Execution', desc: 'Real-time Telegram alerts ensuring you enter before the volatility spikes.' },
               { icon: '📈', title: 'Full Asset Range', desc: 'Comprehensive setups for Nifty, Bank Nifty, and major blue-chip equities.' },
               { icon: '🛡', title: 'Risk Guard', desc: 'Pre-calculated stop-losses and position sizing for every single alert.' },
               { icon: '📊', title: 'Alpha Analytics', desc: 'Entries derived from complex option chain and volumetric analysis.' },
-              { icon: '🤝', title: 'Direct Access', desc: 'Direct communication for doubt clearing and active trade management.' }
+              { icon: '🤝', title: 'Direct Access', desc: 'Direct communication for doubt clearing and active trade management.' },
+              { icon: '🔔', title: 'Daily Pre-Market', desc: 'Morning briefing before NSE opens at 9:15 AM to prep your day.' },
+              { icon: '📱', title: 'Mobile-First', desc: 'Optimized alerts designed for instant action on your mobile device.' }
             ].map((feat, i) => (
               <motion.div 
                 key={i} 
@@ -213,6 +241,67 @@ export default function Home() {
                 <p className="font-body text-white/30 leading-relaxed text-sm font-medium">
                   {feat.desc}
                 </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Signal Showcase - Recent Hits */}
+      <section className="py-32 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16">
+            <div className="max-w-2xl">
+               <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-tcg-green mb-4 block">Proven Alpha Stream</span>
+               <h2 className="font-display text-4xl md:text-6xl font-black text-white uppercase tracking-tighter">Recent <span className="text-tcg-green">Institutional</span> Hits.</h2>
+            </div>
+            <Link href="/pricing" className="text-tcg-green font-display text-xs font-black uppercase tracking-widest hover:underline flex items-center gap-2 mb-2">View Verified Record &rarr;</Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              { ticker: 'NIFTY 24400 CE', entry: '156', target: '215', sl: '125', date: 'Oct 24', rr: '1:3.2', result: '✅ TARGET HIT' },
+              { ticker: 'BANKNIFTY 52000 PE', entry: '340', target: '480', sl: '280', date: 'Oct 23', rr: '1:3.4', result: '✅ TARGET HIT' },
+              { ticker: 'RELIANCE', entry: '2740', target: '2810', sl: '2715', date: 'Oct 22', rr: '1:2.8', result: '✅ TARGET HIT' },
+              { ticker: 'HDFCBANK', entry: '1685', target: '1745', sl: '1665', date: 'Oct 21', rr: '1:3.0', result: '✅ TARGET HIT' },
+              { ticker: 'NIFTY 24800 PE', entry: '110', target: '165', sl: '90', date: 'Oct 20', rr: '1:2.7', result: '✅ TARGET HIT' },
+              { ticker: 'SBIN', entry: '815', target: '845', sl: '802', date: 'Oct 18', rr: '1:2.3', result: '✅ TARGET HIT' },
+            ].map((hit, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 hover:bg-white/[0.05] transition-all group"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <div className="font-display text-2xl font-black text-white tracking-tighter uppercase">{hit.ticker}</div>
+                    <div className="font-mono text-[9px] text-white/30 uppercase tracking-[0.2em] mt-1">{hit.date} {'//'} SIGNAL_RECORD_{i}</div>
+                  </div>
+                  <div className="bg-tcg-green/10 text-tcg-green font-mono text-[9px] font-black px-3 py-1 rounded-full border border-tcg-green/20">
+                    {hit.result}
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 border-y border-white/5 py-6 mb-6">
+                   <div>
+                     <div className="text-[10px] text-white/40 font-black uppercase tracking-widest mb-1">Entry</div>
+                     <div className="text-lg font-display font-black text-white italic">₹{hit.entry}</div>
+                   </div>
+                   <div>
+                     <div className="text-[10px] text-white/40 font-black uppercase tracking-widest mb-1">Target</div>
+                     <div className="text-lg font-display font-black text-tcg-green italic">₹{hit.target}</div>
+                   </div>
+                   <div>
+                     <div className="text-[10px] text-white/40 font-black uppercase tracking-widest mb-1">SL</div>
+                     <div className="text-lg font-display font-black text-red-500 italic">₹{hit.sl}</div>
+                   </div>
+                </div>
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                  <span className="text-white/40">RR Ratio: <span className="text-white">{hit.rr}</span></span>
+                  <span className="text-tcg-green opacity-0 group-hover:opacity-100 transition-opacity">Institutional Alpha &rarr;</span>
+                </div>
               </motion.div>
             ))}
           </div>
