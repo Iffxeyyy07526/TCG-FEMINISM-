@@ -1,6 +1,6 @@
 export const globalStore = {
-  upiId: 'thecapitalguru@upi',
-  qrUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=thecapitalguru@upi&pn=TheCapitalGuru',
+  upiId: '9426961086@ptsbi',
+  qrUrl: 'https://i.ibb.co/tPDv6jPz/Account-QRCode-State-Bank-of-India-3203-DARK-THEME.png',
   maintenance: false,
   whatsappNumber: '919876543210',
   pendingPayments: [

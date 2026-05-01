@@ -420,7 +420,7 @@ export default function AdminPage() {
                         value={settings.upiId} 
                         onChange={e => setSettings({...settings, upiId: e.target.value})}
                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-tcg-green outline-none" 
-                        placeholder="mahir@okaxis" 
+                        placeholder="9426961086@ptsbi" 
                       />
                     </div>
                     <div className="space-y-2">
@@ -430,7 +430,7 @@ export default function AdminPage() {
                         value={settings.qrUrl} 
                         onChange={e => setSettings({...settings, qrUrl: e.target.value})}
                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-tcg-green outline-none" 
-                        placeholder="https://..." 
+                        placeholder="https://i.ibb.co/..." 
                       />
                     </div>
                     <div className="space-y-2">

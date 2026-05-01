@@ -51,7 +51,7 @@ function CheckoutContent() {
             setSettings(data);
         } catch (e) {
             console.error('Settings fetch error:', e);
-            setSettings({ upiId: 'mahir@okaxis', qrUrl: 'https://i.ibb.co/S7mZ5dC/qr.png', maintenance: false, whatsappNumber: '919876543210' });
+            setSettings({ upiId: '9426961086@ptsbi', qrUrl: 'https://i.ibb.co/tPDv6jPz/Account-QRCode-State-Bank-of-India-3203-DARK-THEME.png', maintenance: false, whatsappNumber: '919876543210' });
         }
         setLoading(false);
     }
