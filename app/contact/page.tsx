@@ -44,12 +44,12 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-center gap-6 group">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-tcg-green border border-white/5 group-hover:bg-tcg-green group-hover:text-black transition-all duration-500 shadow-xl group-hover:shadow-tcg-green/20">
+                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-[#25D366] border border-white/5 group-hover:bg-[#25D366] group-hover:text-white transition-all duration-500 shadow-xl group-hover:shadow-[#25D366]/20">
                   <MessageCircle size={24} />
                 </div>
                 <div>
-                  <div className="font-body text-[10px] uppercase tracking-[0.2em] text-white/30 font-black mb-1">Telegram Node</div>
-                  <div className="font-display text-xl font-black text-white group-hover:text-tcg-green transition-colors uppercase tracking-tight">@TheCapitalGuruSupport</div>
+                  <div className="font-body text-[10px] uppercase tracking-[0.2em] text-white/30 font-black mb-1">WhatsApp Support</div>
+                  <div className="font-display text-xl font-black text-white group-hover:text-[#25D366] transition-colors uppercase tracking-tight">+91 94269 61086</div>
                 </div>
               </div>
 

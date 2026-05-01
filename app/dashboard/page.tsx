@@ -10,6 +10,8 @@ import { supabase } from '@/lib/supabase';
 
 export default function DashboardPage() {
   const [userStatus, setUserStatus] = useState<'pending' | 'approved'>('pending');
+  const [userPlan, setUserPlan] = useState<string>('STARTER');
+  const [userName, setUserName] = useState<string>('Trader');
   const [signals, setSignals] = useState<any[]>([]);
   const [stats, setStats] = useState({ total: 0, accuracy: 0 });
   const [loading, setLoading] = useState(true);
@@ -33,6 +35,7 @@ export default function DashboardPage() {
 
         if (profile) {
           let status = profile.status as 'pending' | 'approved';
+          setUserName(profile.full_name || 'Trader');
           
           // Check for expiration
           if (status === 'approved' && profile.expires_at) {
@@ -79,8 +82,6 @@ export default function DashboardPage() {
 
     fetchData();
   }, [router]);
-
-  const [userPlan, setUserPlan] = useState<string>('STARTER');
 
   const isApproved = userStatus === 'approved';
 

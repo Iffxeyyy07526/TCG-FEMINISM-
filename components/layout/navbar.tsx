@@ -12,6 +12,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -24,12 +25,14 @@ export function Navbar() {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
+      setUserEmail(session?.user?.email || null);
     };
     checkAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       setIsLoggedIn(!!session);
+      setUserEmail(session?.user?.email || null);
     });
     
     return () => {
@@ -37,6 +40,8 @@ export function Navbar() {
       subscription.unsubscribe();
     };
   }, []);
+
+  const isAdmin = userEmail === 'iftekharsheikh123456789@gmail.com' || userEmail?.includes('admin@thecapitalguru.net');
 
   const navLinks = [
     { name: 'Home', href: '/' },
@@ -86,6 +91,11 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           {isLoggedIn ? (
             <>
+              {isAdmin && (
+                <Link href="/admin" className="px-5 py-2 text-xs font-bold text-amber-400 border border-amber-400/30 rounded-lg tracking-widest hover:bg-amber-400/10 transition-all uppercase">
+                  Admin
+                </Link>
+              )}
               <Link href="/dashboard" className="px-5 py-2 text-xs font-bold text-tcg-green border border-tcg-green/30 rounded-lg tracking-widest hover:bg-tcg-green/10 transition-all uppercase">
                 Dashboard
               </Link>

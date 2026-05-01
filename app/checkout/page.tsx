@@ -31,38 +31,77 @@ function CheckoutContent() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    async function initCheckout() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          // If not logged in, redirect to login but keep the plan
-          router.push(`/login?redirect=/checkout&plan=${planKey}`);
-          return;
-        }
-
-        setFormData({
-            fullName: user.user_metadata?.full_name || '',
-            email: user.email || '',
-            whatsapp: user.user_metadata?.whatsapp || ''
-        });
-
-        try {
-            const res = await fetch('/api/settings');
-            const data = await res.json();
-            setSettings(data);
-        } catch (e) {
-            console.error('Settings fetch error:', e);
-            setSettings({ upiId: '9426961086@ptsbi', qrUrl: 'https://i.ibb.co/tPDv6jPz/Account-QRCode-State-Bank-of-India-3203-DARK-THEME.png', maintenance: false, whatsappNumber: '919876543210' });
-        }
+    let mounted = true;
+    const timeoutId = setTimeout(() => {
+      if (mounted && loading) {
         setLoading(false);
+        console.warn('Checkout initialization took too long, showing fallback.');
+      }
+    }, 8000); // 8s timeout
+
+    async function initCheckout() {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!mounted) return;
+
+            if (!user) {
+              router.push(`/login?redirect=/checkout&plan=${planKey}`);
+              return;
+            }
+
+            setFormData({
+                fullName: user.user_metadata?.full_name || '',
+                email: user.email || '',
+                whatsapp: user.user_metadata?.whatsapp || ''
+            });
+
+            // Parallel fetch settings with timeout
+            const fetchSettings = async () => {
+              const controller = new AbortController();
+              const id = setTimeout(() => controller.abort(), 5000);
+              try {
+                const res = await fetch('/api/settings', { signal: controller.signal });
+                clearTimeout(id);
+                if (res.ok) {
+                  const data = await res.json();
+                  if (mounted) setSettings(data);
+                } else {
+                  throw new Error('API Error');
+                }
+              } catch (e) {
+                console.error('Settings fetch error:', e);
+                if (mounted) setSettings({ 
+                  upiId: '9426961086@ptsbi', 
+                  qrUrl: 'https://i.ibb.co/tPDv6jPz/Account-QRCode-State-Bank-of-India-3203-DARK-THEME.png', 
+                  maintenance: false, 
+                  whatsappNumber: '919876543210' 
+                });
+              }
+            };
+            
+            await fetchSettings();
+        } catch (error) {
+            console.error('Checkout initialization failed:', error);
+        } finally {
+            if (mounted) {
+              setLoading(false);
+              clearTimeout(timeoutId);
+            }
+        }
     }
+
     initCheckout();
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+    };
   }, [router, planKey]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-tcg-green font-mono">
         <Loader2 className="animate-spin mb-4" size={48} />
-        <p className="uppercase tracking-widest text-[10px] font-black">Building Secure Pipeline...</p>
+        <p className="uppercase tracking-widest text-[10px] font-black">Connecting to Secure Gateway...</p>
       </div>
     );
   }
