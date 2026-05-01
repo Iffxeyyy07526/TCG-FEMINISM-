@@ -48,10 +48,42 @@ export default function AdminPage() {
 
       if (signalsData) setSignals(signalsData);
 
+      // Fetch settings
+      try {
+        const res = await fetch('/api/settings');
+        const settingsData = await res.json();
+        if (settingsData) setSettings(settingsData);
+      } catch (err) {
+        console.error('Settings fetch failed', err);
+      }
+
     } catch (e) {
       console.error(e);
     }
     setLoading(false);
+  };
+
+  const updateSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setMsg('');
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      });
+      if (res.ok) {
+        setMsg('Configuration synchronized.');
+        setTimeout(() => setMsg(''), 3000);
+      } else {
+        throw new Error('Update failed');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Update failed');
+    } finally {
+      setSaving(false);
+    }
   };
 
   useEffect(() => {
@@ -346,9 +378,64 @@ export default function AdminPage() {
                 <h1 className="font-display text-4xl uppercase font-black tracking-tighter mb-2">System Config</h1>
                 <p className="font-body text-sm text-white/40">Adjust base parameters for payment flows and global visibility.</p>
               </div>
-              <div className="bg-white/5 border border-white/10 p-12 rounded-3xl text-center">
-                <SettingsIcon size={48} className="mx-auto text-white/20 mb-6" />
-                <p className="text-white/40 font-mono text-xs uppercase tracking-widest">Settings Engine offline for maintenance</p>
+              
+              <div className="card-premium p-8">
+                <form onSubmit={updateSettings} className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30">Primary UPI ID</label>
+                      <input 
+                        type="text" 
+                        value={settings.upiId} 
+                        onChange={e => setSettings({...settings, upiId: e.target.value})}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-tcg-green outline-none" 
+                        placeholder="mahir@okaxis" 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30">QR Code URL</label>
+                      <input 
+                        type="text" 
+                        value={settings.qrUrl} 
+                        onChange={e => setSettings({...settings, qrUrl: e.target.value})}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-tcg-green outline-none" 
+                        placeholder="https://..." 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30">Support WhatsApp Number</label>
+                      <input 
+                        type="text" 
+                        value={settings.whatsappNumber} 
+                        onChange={e => setSettings({...settings, whatsappNumber: e.target.value})}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-tcg-green outline-none" 
+                        placeholder="919876543210" 
+                      />
+                    </div>
+                    <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/5">
+                      <div className="flex-1">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-white/70 block">Maintenance Mode</label>
+                        <p className="text-[9px] text-white/30 uppercase font-bold">Disable all payments immediately</p>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => setSettings({...settings, maintenance: !settings.maintenance})}
+                        className={cn("w-12 h-6 rounded-full transition-all relative", settings.maintenance ? "bg-red-500" : "bg-white/10")}
+                      >
+                         <div className={cn("absolute top-1 w-4 h-4 rounded-full bg-white transition-all", settings.maintenance ? "right-1" : "left-1")} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <button 
+                    disabled={saving}
+                    type="submit" 
+                    className="w-full py-4 bg-white text-black font-black uppercase text-xs tracking-widest rounded-xl hover:bg-tcg-green transition-all flex items-center justify-center gap-2"
+                  >
+                    {saving ? <Loader2 className="animate-spin" /> : <SettingsIcon size={18} />} Update Engine
+                  </button>
+                  {msg && <p className="text-center text-[10px] font-black text-tcg-green animate-pulse uppercase tracking-[0.2em]">{msg}</p>}
+                </form>
               </div>
             </div>
           )}

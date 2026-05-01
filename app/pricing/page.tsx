@@ -64,7 +64,7 @@ export default function PricingPage() {
                 <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors opacity-30"><X size={18} className="text-white shrink-0 mt-0.5" /> <span>Private Discord Access</span></li>
               </ul>
               
-              <Link href="/register?plan=starter" className="glass-light w-full py-5 text-xs font-black uppercase tracking-widest rounded-xl hover:border-tcg-green/30 hover:text-tcg-green transition-all text-center">
+              <Link href="/checkout?plan=starter" className="glass-light w-full py-5 text-xs font-black uppercase tracking-widest rounded-xl hover:border-tcg-green/30 hover:text-tcg-green transition-all text-center">
                 Select Strategy
               </Link>
             </motion.div>
@@ -103,7 +103,7 @@ export default function PricingPage() {
                 <li className="flex items-start gap-4 p-4 bg-white/[0.04] rounded-2xl hover:bg-tcg-green/[0.03] transition-colors"><Check size={20} className="text-tcg-green shrink-0 mt-0.5" /> <span>Historical Data Index</span></li>
               </ul>
               
-              <Link href="/register?plan=pro" className="btn-primary w-full py-6 text-base font-black relative overflow-hidden group">
+              <Link href="/checkout?plan=pro" className="btn-primary w-full py-6 text-base font-black relative overflow-hidden group">
                 <span className="relative z-10 transition-transform group-hover:scale-105 inline-block">ACTIVATE PRO ACCESS &rarr;</span>
               </Link>
             </motion.div>
@@ -138,7 +138,7 @@ export default function PricingPage() {
                 <li className="flex items-start gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors"><Check size={18} className="text-tcg-green shrink-0 mt-0.5" /> <span>Full Mentorship Hub</span></li>
               </ul>
               
-              <Link href="/register?plan=elite" className="glass-light w-full py-5 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all text-center">
+              <Link href="/checkout?plan=elite" className="glass-light w-full py-5 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all text-center">
                 Select Elite
               </Link>
             </motion.div>

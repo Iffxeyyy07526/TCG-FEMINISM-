@@ -86,16 +86,28 @@ export default function DashboardPage() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-tcg-green/5 blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
           <div className="flex items-center gap-5 relative z-10">
             <div className="w-16 h-16 rounded-2xl bg-tcg-green/10 flex items-center justify-center text-tcg-green shadow-[0_0_20px_rgba(57,255,20,0.1)]">
-              <ShieldAlert size={32} />
+              {userStatus === 'pending' ? <Loader2 className="animate-spin" size={32} /> : <ShieldAlert size={32} />}
             </div>
             <div>
-              <h2 className="font-display text-2xl font-black uppercase text-white tracking-tight">Account Restricted</h2>
-              <p className="text-white/40 text-sm font-medium">Verify your payment to unlock real-time institutional signals and Telegram access.</p>
+              <h2 className="font-display text-2xl font-black uppercase text-white tracking-tight">
+                {userStatus === 'pending' ? 'Verification In Progress' : 'Account Restricted'}
+              </h2>
+              <p className="text-white/40 text-sm font-medium">
+                {userStatus === 'pending' 
+                  ? 'Our nodes are verifying your transaction. Access will be granted shortly.' 
+                  : 'Verify your payment to unlock real-time institutional signals and Telegram access.'}
+              </p>
             </div>
           </div>
-          <Link href="/pricing" className="btn-primary px-8 py-4 whitespace-nowrap relative z-10 group">
-            Complete Activation <span className="ml-2 group-hover:translate-x-1 transition-transform">&rarr;</span>
-          </Link>
+          {userStatus !== 'pending' ? (
+            <Link href="/pricing" className="btn-primary px-8 py-4 whitespace-nowrap relative z-10 group">
+              Complete Activation <span className="ml-2 group-hover:translate-x-1 transition-transform">&rarr;</span>
+            </Link>
+          ) : (
+            <div className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white/50 relative z-10">
+              Awaiting Admin Review
+            </div>
+          )}
         </div>
       )}
 
