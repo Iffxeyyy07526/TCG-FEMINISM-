@@ -22,12 +22,22 @@ export default function DashboardPage() {
         // Fetch profile
         const { data: profile } = await supabase
           .from('profiles')
-          .select('status')
+          .select('status, expires_at')
           .eq('id', user.id)
           .single();
 
         if (profile) {
-          setUserStatus(profile.status as 'pending' | 'approved');
+          let status = profile.status as 'pending' | 'approved';
+          
+          // Check for expiration
+          if (status === 'approved' && profile.expires_at) {
+            const expiry = new Date(profile.expires_at);
+            if (new Date() > expiry) {
+              status = 'pending'; // Treat as pending/restricted if expired
+            }
+          }
+          
+          setUserStatus(status);
         } else {
           // Fallback to localStorage for demo
           const localStatus = localStorage.getItem('tcg_user_status');

@@ -62,6 +62,21 @@ function RegisterForm() {
         console.error('Profile creation error:', profileError);
       }
 
+      // 3. Send Registration Email Alert
+      try {
+        await fetch('/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'registration',
+            email: formData.email,
+            data: { fullName: formData.fullName }
+          })
+        });
+      } catch (emailErr) {
+        console.error('Registration email failed:', emailErr);
+      }
+
       // Success!
       localStorage.setItem('tcg_user_status', 'pending');
       

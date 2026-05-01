@@ -80,8 +80,41 @@ function CheckoutContent() {
     );
   }
 
-  const handleNextStep = (e: React.FormEvent) => {
+  const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Persist details to Supabase profile
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({ 
+            full_name: formData.fullName,
+            whatsapp_number: formData.whatsapp 
+          })
+          .eq('id', user.id);
+      }
+    } catch (err) {
+      console.error('Failed to update profile during checkout:', err);
+    }
+
+    if (step === 2) {
+      // Send Payment Initiated Email
+      try {
+        await fetch('/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'payment-initiated',
+            email: formData.email,
+            data: { plan: currentPlan.name, price: currentPlan.price }
+          })
+        });
+      } catch (err) {
+        console.error('Payment email failed:', err);
+      }
+    }
     setStep(step + 1);
   };
 

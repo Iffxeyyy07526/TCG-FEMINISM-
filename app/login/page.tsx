@@ -30,6 +30,20 @@ function LoginForm() {
 
       if (signInError) throw signInError;
 
+      // Send Login Email Alert
+      try {
+        await fetch('/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'login',
+            email: email
+          })
+        });
+      } catch (loginErr) {
+        console.error('Login email failed:', loginErr);
+      }
+
       // Check if user is admin or regular user
       const { data: profile } = await supabase
         .from('profiles')

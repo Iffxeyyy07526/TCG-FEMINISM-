@@ -116,13 +116,44 @@ export default function AdminPage() {
 
   const approveUser = async (userId: string) => {
     try {
+      const user = pendingUsers.find(u => u.id === userId);
+      if (!user) return;
+
+      // Calculate expiration based on plan
+      const now = new Date();
+      let durationDays = 30; // Default Starter
+      const planType = user.plan?.toLowerCase() || 'starter';
+      if (planType === 'pro') durationDays = 180;
+      if (planType === 'elite') durationDays = 365;
+
+      const expiresAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
       const { error } = await supabase
         .from('profiles')
-        .update({ status: 'approved' })
+        .update({ 
+          status: 'approved',
+          plan_activated_at: now.toISOString(),
+          expires_at: expiresAt.toISOString()
+        })
         .eq('id', userId);
       
       if (error) throw error;
-      setPendingUsers(users => users.map(u => u.id === userId ? { ...u, status: 'approved' } : u));
+      setPendingUsers(users => users.map(u => u.id === userId ? { ...u, status: 'approved', expires_at: expiresAt.toISOString() } : u));
+
+      // Send Approval Email
+      try {
+        await fetch('/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'approval',
+            email: user.email,
+            data: { telegramLink: 'https://t.me/thecapitalguru' }
+          })
+        });
+      } catch (emailErr) {
+        console.error('Approval email failed:', emailErr);
+      }
     } catch (err: any) {
       alert('Approval failed: ' + err.message);
     }
