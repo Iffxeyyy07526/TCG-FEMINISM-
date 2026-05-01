@@ -91,7 +91,8 @@ function CheckoutContent() {
           .from('profiles')
           .update({ 
             full_name: formData.fullName,
-            whatsapp_number: formData.whatsapp 
+            whatsapp_number: formData.whatsapp,
+            plan: planKey.toUpperCase()
           })
           .eq('id', user.id);
       }
@@ -100,29 +101,33 @@ function CheckoutContent() {
     }
 
     if (step === 2) {
-      // Send Payment Initiated Email
-      try {
-        await fetch('/api/email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'payment-initiated',
-            email: formData.email,
-            data: { plan: currentPlan.name, price: currentPlan.price }
-          })
-        });
-      } catch (err) {
-        console.error('Payment email failed:', err);
-      }
+      handleFinalize();
+      return;
     }
     setStep(step + 1);
   };
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     const num = settings?.whatsappNumber || '919876543210';
     const msg = encodeURIComponent(`TCG Payment Confirmation\nPlan: ${currentPlan.name}\nName: ${formData.fullName}\nEmail: ${formData.email}\nWhatsApp: ${formData.whatsapp}\n\nI have completed the payment. Here is the screenshot:`);
+    
+    // Send Payment Initiated Email
+    try {
+      await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'payment-initiated',
+          email: formData.email,
+          data: { plan: currentPlan.name, price: currentPlan.price }
+        })
+      });
+    } catch (err) {
+      console.error('Payment email failed:', err);
+    }
+
     window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
-    setStep(4);
+    setStep(3);
   };
 
   return (
@@ -193,12 +198,12 @@ function CheckoutContent() {
 
           {step === 2 && (
             <div className="animate-in fade-in slide-in-from-left-4 duration-500 text-center lg:text-left">
-              <h2 className="font-display text-5xl font-black text-white uppercase tracking-tighter mb-4 leading-none">Scan & <br/><span className="text-tcg-green text-glow">Authorize.</span></h2>
-              <p className="font-body text-white/40 mb-12 max-w-sm uppercase text-[10px] tracking-[0.2em] font-bold">Complete transaction via any UPI application.</p>
+              <h2 className="font-display text-5xl font-black text-white uppercase tracking-tighter mb-4 leading-none text-glow">Scan & <span className="text-tcg-green">Pay.</span></h2>
+              <p className="font-body text-white/40 mb-12 max-w-sm uppercase text-[10px] tracking-[0.2em] font-bold">Complete transaction via any UPI application then send screenshot.</p>
               
               <div className="flex flex-col lg:flex-row items-center gap-12 mb-12">
                 <div className="bg-white p-6 rounded-[2rem] shadow-[0_0_50px_rgba(57,255,20,0.15)] relative group overflow-hidden">
-                  <Image unoptimized src={settings?.qrUrl || 'https://i.ibb.co/S7mZ5dC/qr.png'} alt="Payment QR" width={240} height={240} className="rounded-lg mix-blend-multiply transition-transform group-hover:scale-105 duration-500" />
+                  <Image unoptimized src={settings?.qrUrl || 'https://i.ibb.co/tPDv6jPz/Account-QRCode-State-Bank-of-India-3203-DARK-THEME.png'} alt="Payment QR" width={240} height={240} className="rounded-lg mix-blend-multiply transition-transform group-hover:scale-105 duration-500" />
                   <div className="absolute inset-0 bg-tcg-green/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
                 
@@ -211,53 +216,40 @@ function CheckoutContent() {
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/5 border border-white/10 p-4 rounded-2xl">
-                      <p className="text-[9px] font-black text-white/30 uppercase mb-1">Payable</p>
-                      <p className="font-display text-2xl font-black text-white">{currentPlan.price}</p>
+                    <div className="bg-white/5 border border-white/10 p-4 rounded-2xl text-left">
+                      <p className="text-[9px] font-black text-white/30 uppercase mb-1">Plan</p>
+                      <p className="font-display text-xl font-black text-white">{currentPlan.name}</p>
                     </div>
-                    <div className="bg-white/5 border border-white/10 p-4 rounded-2xl">
-                      <p className="text-[9px] font-black text-white/30 uppercase mb-1">Validity</p>
-                      <p className="font-display text-2xl font-black text-white">{planKey === 'starter' ? '30 Days' : planKey === 'pro' ? '6 Months' : '1 Year'}</p>
+                    <div className="bg-white/5 border border-white/10 p-4 rounded-2xl text-left">
+                      <p className="text-[9px] font-black text-white/30 uppercase mb-1">Amount</p>
+                      <p className="font-display text-xl font-black text-tcg-green">{currentPlan.price}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={() => setStep(1)} className="glass-light px-8 py-5 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/10">Modify Info</button>
-                <button onClick={() => setStep(3)} className="btn-primary flex-1 py-5 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 group">
-                   Confirm Payment Done <CheckCircle2 size={18} className="group-hover:scale-110 transition-transform" />
+              <div className="space-y-4">
+                <button 
+                  onClick={handleFinalize}
+                  className="w-full py-6 bg-[#25D366] text-white text-base font-black uppercase tracking-widest rounded-2xl shadow-[0_20px_50px_rgba(37,211,102,0.2)] hover:scale-[1.02] transition-all flex items-center justify-center gap-4 group">
+                    <MessageSquare size={24} className="group-hover:rotate-12 transition-transform" /> I&apos;ve Paid — Send Screenshot
                 </button>
+                <button onClick={() => setStep(1)} className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 hover:text-white transition-colors block w-full text-center">Modify Details</button>
               </div>
             </div>
           )}
 
           {step === 3 && (
-            <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-               <div className="w-20 h-20 bg-tcg-green/10 rounded-full flex items-center justify-center text-tcg-green mb-8 shadow-[0_0_40px_rgba(57,255,20,0.15)]">
+            <div className="animate-in zoom-in duration-500 text-center lg:text-left">
+               <div className="w-20 h-20 bg-tcg-green/10 rounded-full flex items-center justify-center text-tcg-green mb-8 shadow-[0_0_40px_rgba(57,255,20,0.15)] mx-auto lg:mx-0">
                  <CheckCircle2 size={40} />
                </div>
-               <h2 className="font-display text-5xl font-black text-white uppercase tracking-tighter mb-4 leading-none">Finalize <br/><span className="text-tcg-green">The Bridge.</span></h2>
-               <p className="font-body text-white/40 mb-10 max-w-md text-sm leading-relaxed">
-                 To activate your institutional access, click the button below to send your payment screenshot to Mahir on WhatsApp. Our team will review and approve your account within 30 minutes.
-               </p>
-
-               <div className="space-y-6">
-                 <button 
-                  onClick={handleFinalize}
-                  className="w-full py-6 bg-[#25D366] text-white text-base font-black uppercase tracking-widest rounded-2xl shadow-[0_20px_50px_rgba(37,211,102,0.2)] hover:scale-[1.02] transition-all flex items-center justify-center gap-4 group">
-                    <MessageSquare size={24} className="fill-white/20" /> Send Screenshot to WhatsApp
-                 </button>
-                 <Link href="/dashboard" className="block text-center text-[10px] font-black uppercase tracking-[0.3em] text-white/20 hover:text-white transition-colors">Return to Waiting Room</Link>
+               <h2 className="font-display text-5xl font-black text-white uppercase tracking-tighter mb-6 leading-none pt-4">Request <br/><span className="text-tcg-green">Synchronized.</span></h2>
+               <p className="font-body text-white/40 mb-12 max-w-sm text-sm">Your activation request has been logged. Our team is verifying the transaction. Access will be granted within 30 minutes.</p>
+               <div className="flex flex-col sm:flex-row gap-4">
+                 <Link href="/dashboard" className="btn-primary px-12 py-5 text-xs font-black uppercase tracking-widest rounded-xl text-center">Enter Dashboard</Link>
+                 <Link href={`https://wa.me/${settings?.whatsappNumber || '919876543210'}`} target="_blank" className="glass-light px-12 py-5 text-xs font-black uppercase tracking-widest rounded-xl text-center">Support Chat</Link>
                </div>
-            </div>
-          )}
-
-          {step === 4 && (
-            <div className="animate-in zoom-in duration-500 text-center lg:text-left">
-               <h2 className="font-display text-5xl font-black text-white uppercase tracking-tighter mb-6 leading-none pt-12">Session <br/><span className="text-tcg-green">Synchronized.</span></h2>
-               <p className="font-body text-white/40 mb-12 max-w-sm text-sm">Your activation request has been logged. Please check your WhatsApp/Dashboard for the approval confirmation.</p>
-               <Link href="/dashboard" className="btn-primary inline-flex px-12 py-5 text-xs font-black uppercase tracking-widest rounded-xl">Enter Dashboard</Link>
             </div>
           )}
         </div>

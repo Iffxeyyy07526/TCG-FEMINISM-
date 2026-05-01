@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { SignalCard } from '@/components/ui/signal-card';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { ShieldAlert, CreditCard, ExternalLink, History, Lock, CheckCircle2, Loader2 } from 'lucide-react';
@@ -12,17 +13,21 @@ export default function DashboardPage() {
   const [signals, setSignals] = useState<any[]>([]);
   const [stats, setStats] = useState({ total: 0, accuracy: 0 });
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchData() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!user) {
+          router.push('/login');
+          return;
+        }
 
         // Fetch profile
         const { data: profile } = await supabase
           .from('profiles')
-          .select('status, expires_at')
+          .select('status, expires_at, plan, full_name')
           .eq('id', user.id)
           .single();
 
@@ -33,15 +38,12 @@ export default function DashboardPage() {
           if (status === 'approved' && profile.expires_at) {
             const expiry = new Date(profile.expires_at);
             if (new Date() > expiry) {
-              status = 'pending'; // Treat as pending/restricted if expired
+              status = 'pending';
             }
           }
           
           setUserStatus(status);
-        } else {
-          // Fallback to localStorage for demo
-          const localStatus = localStorage.getItem('tcg_user_status');
-          if (localStatus) setUserStatus(localStatus as any);
+          setUserPlan(profile.plan || 'STARTER');
         }
 
         // Fetch signals
@@ -76,7 +78,9 @@ export default function DashboardPage() {
     }
 
     fetchData();
-  }, []);
+  }, [router]);
+
+  const [userPlan, setUserPlan] = useState<string>('STARTER');
 
   const isApproved = userStatus === 'approved';
 
@@ -89,13 +93,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-20 mt-10">
+    <div className="max-w-5xl mx-auto space-y-8 pb-20 mt-10 px-6">
       {/* Status Banner */}
       {!isApproved && (
         <div className="bg-tcg-green/5 border border-tcg-green/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-tcg-green/5 blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
           <div className="flex items-center gap-5 relative z-10">
-            <div className="w-16 h-16 rounded-2xl bg-tcg-green/10 flex items-center justify-center text-tcg-green shadow-[0_0_20px_rgba(57,255,20,0.1)]">
+            <div className="w-16 h-16 rounded-2xl bg-tcg-green/10 flex items-center justify-center text-tcg-green shadow-[0_0_20px_rgba(57,255,20,0.1)] shrink-0">
               {userStatus === 'pending' ? <Loader2 className="animate-spin" size={32} /> : <ShieldAlert size={32} />}
             </div>
             <div>
@@ -104,20 +108,16 @@ export default function DashboardPage() {
               </h2>
               <p className="text-white/40 text-sm font-medium">
                 {userStatus === 'pending' 
-                  ? 'Our nodes are verifying your transaction. Access will be granted shortly.' 
-                  : 'Verify your payment to unlock real-time institutional signals and Telegram access.'}
+                  ? 'Our nodes are currently verifying your payment screenshot. Check WhatsApp for updates.' 
+                  : 'Your account is in safe mode. Complete activation to unlock institutional signals.'}
               </p>
             </div>
           </div>
-          {userStatus !== 'pending' ? (
-            <Link href="/pricing" className="btn-primary px-8 py-4 whitespace-nowrap relative z-10 group">
-              Complete Activation <span className="ml-2 group-hover:translate-x-1 transition-transform">&rarr;</span>
+          <div className="flex gap-4 relative z-10 w-full md:w-auto">
+            <Link href={`/checkout?plan=${userPlan.toLowerCase()}`} className="btn-primary px-8 py-4 whitespace-nowrap group flex-1 text-center">
+              Complete Payment <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">&rarr;</span>
             </Link>
-          ) : (
-            <div className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white/50 relative z-10">
-              Awaiting Admin Review
-            </div>
-          )}
+          </div>
         </div>
       )}
 

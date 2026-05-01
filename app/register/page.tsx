@@ -171,7 +171,7 @@ function RegisterForm() {
             disabled={loading}
             className="px-6 py-4 text-xs font-bold text-black bg-tcg-green rounded-xl tracking-widest hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(57,255,20,0.4)] transition-all uppercase mt-2 w-full flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {loading ? <Loader2 className="animate-spin" size={18} /> : 'Continue to Dashboard →'}
+            {loading ? <Loader2 className="animate-spin" size={18} /> : (plan ? 'Continue to Payment →' : 'Initialize Session →')}
           </button>
         </div>
       </form>
