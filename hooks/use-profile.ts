@@ -7,6 +7,7 @@ export interface UserProfile {
   id: string;
   email: string;
   full_name: string;
+  is_admin?: boolean;
   plan: 'starter' | 'pro' | 'elite' | string;
   status: 'pending' | 'approved' | 'rejected' | string;
   plan_activated_at?: string;

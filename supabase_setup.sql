@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT UNIQUE NOT NULL,
     full_name TEXT,
+    is_admin BOOLEAN DEFAULT FALSE,
     plan TEXT DEFAULT 'starter' CHECK (plan IN ('starter', 'pro', 'elite')),
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
     plan_activated_at TIMESTAMPTZ,
@@ -93,3 +94,32 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 6. COUPONS TABLE
+CREATE TABLE IF NOT EXISTS public.coupons (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code TEXT UNIQUE NOT NULL,
+    discount_percent INTEGER NOT NULL CHECK (discount_percent > 0 AND discount_percent <= 100),
+    is_active BOOLEAN DEFAULT TRUE,
+    max_uses INTEGER DEFAULT 100,
+    used_count INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS for coupons
+ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can read active coupons (to validate during checkout)
+CREATE POLICY "Anyone can view coupons" 
+ON public.coupons FOR SELECT 
+USING (is_active = TRUE);
+
+-- RPC TO INCREMENT COUPON USAGE
+CREATE OR REPLACE FUNCTION public.increment_coupon_usage(coupon_code TEXT)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.coupons 
+    SET used_count = used_count + 1 
+    WHERE code = coupon_code;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

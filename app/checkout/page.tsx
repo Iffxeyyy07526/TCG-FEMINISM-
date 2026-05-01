@@ -29,6 +29,51 @@ function CheckoutContent() {
     whatsapp: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [couponError, setCouponError] = useState('');
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+
+  const applyCoupon = async () => {
+    if (!couponCode) return;
+    setIsValidatingCoupon(true);
+    setCouponError('');
+    try {
+      const { data, error } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('code', couponCode.toUpperCase())
+        .eq('is_active', true)
+        .single();
+      
+      if (error || !data) {
+        setCouponError('Invalid or expired coupon.');
+        setDiscount(0);
+        return;
+      }
+
+      if (data.used_count >= data.max_uses) {
+        setCouponError('Coupon usage limit reached.');
+        setDiscount(0);
+        return;
+      }
+
+      setDiscount(data.discount_percent);
+      setCouponError('');
+    } catch (e) {
+      setCouponError('Validation failed.');
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const calculateTotal = () => {
+    const basePrice = parseInt(currentPlan.price.replace(/[^\d]/g, ''));
+    if (discount > 0) {
+      return basePrice - (basePrice * discount / 100);
+    }
+    return basePrice;
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -148,8 +193,18 @@ function CheckoutContent() {
 
   const handleFinalize = async () => {
     const num = settings?.whatsappNumber || '919876543210';
-    const msg = encodeURIComponent(`TCG Payment Confirmation\nPlan: ${currentPlan.name}\nName: ${formData.fullName}\nEmail: ${formData.email}\nWhatsApp: ${formData.whatsapp}\n\nI have completed the payment. Here is the screenshot:`);
+    const finalPrice = `₹${calculateTotal().toLocaleString()}`;
+    const msg = encodeURIComponent(`TCG Payment Confirmation\nPlan: ${currentPlan.name}\nName: ${formData.fullName}\nEmail: ${formData.email}\nWhatsApp: ${formData.whatsapp}\nPrice: ${finalPrice}\nCoupon: ${discount > 0 ? couponCode.toUpperCase() : 'NONE'}\n\nI have completed the payment. Here is the screenshot:`);
     
+    // Update Coupon Usage if applied
+    if (discount > 0) {
+      try {
+        await supabase.rpc('increment_coupon_usage', { coupon_code: couponCode.toUpperCase() });
+      } catch (err) {
+        console.error('Failed to increment coupon usage:', err);
+      }
+    }
+
     // Send Payment Initiated Email
     try {
       await fetch('/api/email', {
@@ -158,7 +213,7 @@ function CheckoutContent() {
         body: JSON.stringify({
           type: 'payment-initiated',
           email: formData.email,
-          data: { plan: currentPlan.name, price: currentPlan.price }
+          data: { plan: currentPlan.name, price: finalPrice }
         })
       });
     } catch (err) {
@@ -320,11 +375,38 @@ function CheckoutContent() {
                </div>
             </div>
 
-            <div className="bg-white/5 p-6 rounded-2xl border border-white/5 mb-8">
+            <div className="bg-white/5 p-6 rounded-2xl border border-white/5 mb-6">
                <div className="flex justify-between items-end">
                  <span className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1 block">Total Due</span>
-                 <span className="font-display text-4xl font-black text-tcg-green text-glow">{currentPlan.price}</span>
+                 <div className="text-right">
+                   {discount > 0 && (
+                     <p className="text-[10px] font-black text-white/20 line-through mb-1">{currentPlan.price}</p>
+                   )}
+                   <span className="font-display text-4xl font-black text-tcg-green text-glow">₹{calculateTotal().toLocaleString()}</span>
+                 </div>
                </div>
+            </div>
+
+            <div className="mb-8">
+              <label className="text-[10px] font-black uppercase tracking-widest text-white/30 block mb-2">Network Promo Code</label>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={couponCode}
+                  onChange={e => setCouponCode(e.target.value)}
+                  placeholder="ENTER CODE"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white uppercase focus:border-tcg-green outline-none transition-all"
+                />
+                <button 
+                  onClick={applyCoupon}
+                  disabled={isValidatingCoupon || !couponCode}
+                  className="px-4 bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase hover:bg-tcg-green hover:text-black transition-all disabled:opacity-50"
+                >
+                  {isValidatingCoupon ? <Loader2 className="animate-spin" size={14} /> : 'Apply'}
+                </button>
+              </div>
+              {couponError && <p className="text-[10px] text-red-500 font-bold mt-2 uppercase tracking-tight">{couponError}</p>}
+              {discount > 0 && <p className="text-[10px] text-tcg-green font-bold mt-2 uppercase tracking-tight">Access Key Applied: {discount}% Discount</p>}
             </div>
 
             <div className="space-y-4">
