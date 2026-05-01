@@ -106,17 +106,27 @@ export default function AdminPage() {
 
   useEffect(() => {
     async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', session.user.id).single();
-        if (profile?.is_admin) {
-          setIsAuthenticated(true);
-          await fetchData();
+      try {
+        const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+        if (sessionErr) throw sessionErr;
+
+        if (session) {
+          const { data: profile, error: profileErr } = await supabase.from('profiles').select('is_admin').eq('id', session.user.id).single();
+          if (profileErr) throw profileErr;
+
+          if (profile?.is_admin) {
+            setIsAuthenticated(true);
+            await fetchData();
+          } else {
+            // Not an admin
+            await supabase.auth.signOut();
+            setLoading(false);
+          }
         } else {
-          await supabase.auth.signOut();
           setLoading(false);
         }
-      } else {
+      } catch (err: any) {
+        console.error('Terminal sync error:', err);
         setLoading(false);
       }
     }
@@ -275,7 +285,13 @@ export default function AdminPage() {
     setIsAuthenticated(false);
   };
 
-  if (loading) return <div className="min-h-screen bg-black text-tcg-green flex items-center justify-center font-mono">Loading...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-black text-tcg-green flex flex-col items-center justify-center font-mono gap-4">
+      <Loader2 className="animate-spin" size={32} />
+      <div className="text-[10px] uppercase tracking-[0.3em] font-black animate-pulse">Syncing Terminal Nodes...</div>
+      <div className="text-[8px] text-white/20 uppercase tracking-widest mt-10">Institutional access verification in progress</div>
+    </div>
+  );
 
   if (!isAuthenticated) {
     return (
@@ -294,7 +310,12 @@ export default function AdminPage() {
               <label className="font-body text-[10px] uppercase tracking-widest text-white/50 block mb-1 font-black">Access Key</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full bg-black border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:border-tcg-green outline-none" placeholder="••••••••" />
             </div>
-            <button type="submit" className="w-full px-6 py-4 text-xs font-bold text-black bg-tcg-green rounded-lg tracking-widest uppercase hover:bg-tcg-green/80 transition-all mt-4">Authenticate</button>
+            <button type="submit" disabled={loading} className="w-full px-6 py-4 text-xs font-bold text-black bg-tcg-green rounded-lg tracking-widest uppercase hover:bg-tcg-green/80 transition-all mt-4 flex items-center justify-center gap-2">
+              {loading ? <Loader2 className="animate-spin" size={16} /> : 'Authenticate'}
+            </button>
+            <p className="text-[9px] text-white/20 text-center uppercase tracking-widest leading-relaxed">
+              If authentication fails, ensure your identity is registered on the main floor and authorized for terminal access.
+            </p>
           </form>
         </div>
       </div>

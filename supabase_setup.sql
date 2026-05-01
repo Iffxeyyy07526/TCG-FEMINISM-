@@ -59,36 +59,64 @@ CREATE POLICY "Users can view own profile"
 ON public.profiles FOR SELECT 
 USING (auth.uid() = id);
 
--- Profiles: Users can update their own profile (limited fields commonly)
--- For this app, admin updates plan/status, but user might update name
+-- Profiles: Admins can view and manage all profiles
+CREATE POLICY "Admins can manage all profiles" 
+ON public.profiles FOR ALL 
+USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND is_admin = TRUE));
+
+-- Profiles: Users can update their own profile
 CREATE POLICY "Users can update own profile" 
 ON public.profiles FOR UPDATE 
 USING (auth.uid() = id);
 
--- Signals: Anyone can read signals (we filter in code based on plan/status)
+-- Signals: Anyone can read signals
 CREATE POLICY "Anyone can view signals" 
 ON public.signals FOR SELECT 
 USING (TRUE);
+
+-- Signals: Admins can manage signals
+CREATE POLICY "Admins can manage signals" 
+ON public.signals FOR ALL 
+USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND is_admin = TRUE));
 
 -- Settings: Anyone can read settings
 CREATE POLICY "Anyone can view settings" 
 ON public.settings FOR SELECT 
 USING (TRUE);
 
--- ADMIN POLICIES (Example: If you have an admin role or specific email)
--- For now, allowing all writes if service role is used, or you can add specific admin UID policies
--- CREATE POLICY "Admins can do everything" ON public.signals FOR ALL USING (auth.jwt()->>'email' = 'mahir@thecapitalguru.net');
+-- Settings: Admins can manage settings
+CREATE POLICY "Admins can manage settings" 
+ON public.settings FOR ALL 
+USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND is_admin = TRUE));
+
+-- Coupons: Anyone can read coupons
+CREATE POLICY "Anyone can view coupons" 
+ON public.coupons FOR SELECT 
+USING (TRUE);
+
+-- Coupons: Admins can manage coupons
+CREATE POLICY "Admins can manage coupons" 
+ON public.coupons FOR ALL 
+USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND is_admin = TRUE));
 
 -- 5. FUNCTION TO HANDLE NEW USER SIGNUPS
 -- Automatically creates a profile entry when a user signs up via Supabase Auth
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.profiles (id, email, full_name)
-    VALUES (new.id, new.email, new.raw_user_meta_data->>'full_name');
+    INSERT INTO public.profiles (id, email, full_name, is_admin)
+    VALUES (
+        new.id, 
+        new.email, 
+        new.raw_user_meta_data->>'full_name',
+        (new.email = 'iftekharsheikh123456789@gmail.com') -- Grant admin to specific email
+    );
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant admin access to existing user if they already signed up
+UPDATE public.profiles SET is_admin = TRUE WHERE email = 'iftekharsheikh123456789@gmail.com';
 
 -- Trigger for handle_new_user
 CREATE OR REPLACE TRIGGER on_auth_user_created
@@ -123,3 +151,8 @@ BEGIN
     WHERE code = coupon_code;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 7. SETTINGS UPDATE POLICY (Explicit fix for settings)
+DROP POLICY IF EXISTS "Anyone can view settings" ON public.settings;
+CREATE POLICY "Anyone can view settings" ON public.settings FOR SELECT USING (TRUE);
+CREATE POLICY "Admins manage settings" ON public.settings FOR ALL USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND is_admin = TRUE));
